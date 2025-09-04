@@ -11,9 +11,7 @@ Above means, that if you will use this library for testing your sui d-apps, test
 
 ## Installation
 
-```bash
-yarn add suiangria
-```
+Todo: Installation instructions
 
 ## Features (Desired Feature Set)
 
@@ -179,12 +177,7 @@ Pre-built binaries are available for:
 
 ## Release Process
 
-```bash
-npm version [major | minor | patch]
-git push --follow-tags
-```
-
-GitHub Actions will automatically build and publish platform-specific packages.
+Todo: Make releases workflow and push to npm.
 
 ## Credits
 
