@@ -40,6 +40,8 @@ The following features represent the intended functionality. Not all features ar
 
 - **Time-Dependent Testing** - Advance blockchain clock for testing time-locked logic
 
+- **Versioning Releases** - Releases that match one-to-one to suiClient package versions
+
 ## Quick Start
 
 ```typescript
@@ -50,6 +52,13 @@ const { client, sandbox } = createSandboxClient()
 
 // Fund an address
 const coinId = sandbox.mintSui('0x...', 1000000000)
+
+// now you can use client in tests as you would normally use SuiClient.
+const yourApplicationApi = new YourApplicationApi(client);
+
+// There might be problems that the ts will scream that the client is not compatible to expected.
+// for now you will need to do something like this:
+const yourApplicationApi = new YourApplicationApi(client as any as SuiClient);
 ```
 
 ## Signature free testing
