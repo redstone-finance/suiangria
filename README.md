@@ -7,7 +7,7 @@
 
 ⚠️ **Early Development Notice**: This project is under active development. Many features are incomplete or may not work as expected. Use at your own risk.
 
-Above means, that if you will use this library for testing your sui d-apps, tests passing does not mean the app is perfect. Although you can use this to find failing cases in your app.
+Above means that if you use this library for testing your Sui dApps, passing tests do not guarantee your application is production-ready. However, you can leverage this tool to identify potential failure cases in your application.
 
 ## Installation
 
