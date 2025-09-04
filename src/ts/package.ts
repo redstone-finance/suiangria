@@ -1,6 +1,5 @@
 import { execSync } from 'child_process'
 import { SandboxClient } from './client'
-import { existsSync } from 'fs'
 
 interface BuildOutput {
   modules: string[]
@@ -9,16 +8,15 @@ interface BuildOutput {
 }
 
 export function publishPackage(sandbox: SandboxClient, movePackageSrcDir: string, owner: string) {
-  const sui = findSuiBinary()
-  const buildOutput = compileMovePackage(sui, movePackageSrcDir)
+  const buildOutput = compileMovePackage(movePackageSrcDir)
   const moduleBytes = extractModuleBytes(buildOutput)
   const dependencyIds = extractDependencyIds(buildOutput)
 
   return sandbox.publishPackage(moduleBytes, dependencyIds, owner)
 }
 
-function compileMovePackage(suiPath: string, packageDir: string): BuildOutput {
-  const buildCommand = `${suiPath} move build --path ${packageDir} --dump-bytecode-as-base64 --skip-fetch-latest-git-deps`
+function compileMovePackage(packageDir: string): BuildOutput {
+  const buildCommand = `sui move build --path ${packageDir} --dump-bytecode-as-base64 --skip-fetch-latest-git-deps`
 
   try {
     const output = execSync(buildCommand, {
@@ -32,25 +30,6 @@ function compileMovePackage(suiPath: string, packageDir: string): BuildOutput {
 
     throw new Error(`Failed to build Move package: ${error}`)
   }
-}
-
-function findSuiBinary(): string {
-  try {
-    const path = execSync('which sui', { encoding: 'utf8' }).trim()
-    if (path) return path
-  } catch {}
-
-  const possiblePaths = [
-    '/usr/local/bin/sui',
-    `${process.env.HOME}/.cargo/bin/sui`,
-    `${process.env.HOME}/.local/bin/sui`,
-  ]
-
-  for (const path of possiblePaths) {
-    if (existsSync(path)) return path
-  }
-
-  return 'sui'
 }
 
 function parseBuildOutput(output: string): BuildOutput {

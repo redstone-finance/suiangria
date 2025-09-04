@@ -62,6 +62,7 @@ where
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn create_transaction_response(
         &self,
         tx_data: &TransactionData,

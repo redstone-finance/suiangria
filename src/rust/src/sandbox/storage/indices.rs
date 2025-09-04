@@ -18,7 +18,7 @@ pub struct MoveCallSignature {
     pub function: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct TransactionMetadata {
     pub digest: TransactionDigest,
     pub sender: SuiAddress,
@@ -32,7 +32,7 @@ pub struct TransactionMetadata {
     pub transaction_kind: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct TransactionIndices {
     by_sender: HashMap<SuiAddress, HashSet<TransactionDigest>>,
     by_recipient: HashMap<SuiAddress, HashSet<TransactionDigest>>,
