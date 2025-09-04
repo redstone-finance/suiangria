@@ -29,7 +29,7 @@ export declare class ObjectApi {
 
 export declare class PackageApi {
   publish(modules: Array<Array<number>>, dependencyIds: Array<string>, sender: string): string
-  getNormalizedMoveFunction(package: string, module: string, fun: string): string
+  getNormalizedMoveFunction(packageId: string, module: string, fun: string): string
 }
 
 export declare class StateApi {

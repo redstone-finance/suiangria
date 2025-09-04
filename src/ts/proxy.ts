@@ -101,9 +101,6 @@ export function createSandboxClient(): { client: SuiClient; sandbox: SandboxClie
         },
 
         async waitForTransaction({
-          signal,
-          timeout,
-          pollInterval,
           ...input
         }: {
           signal?: AbortSignal

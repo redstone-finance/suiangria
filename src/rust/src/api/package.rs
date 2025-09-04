@@ -43,7 +43,7 @@ impl PackageApi {
     #[napi]
     pub fn get_normalized_move_function(
         &self,
-        package: String,
+        package_id: String,
         module: String,
         fun: String,
     ) -> Result<String> {
@@ -51,7 +51,7 @@ impl PackageApi {
             .sandbox
             .borrow()
             .package()
-            .get_normalized_move_function(package, module, fun)
+            .get_normalized_move_function(package_id, module, fun)
             .map_err(|e| Error::from_reason(format!("Failed to get normalized function: {}", e)))?;
 
         to_json!(normalized)
