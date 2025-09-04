@@ -12,7 +12,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  rely-fast-tests:
+  rust-tests:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
