@@ -22,12 +22,11 @@ function compileMovePackage(packageDir: string): BuildOutput {
     const output = execSync(buildCommand, {
       encoding: 'utf8',
       env: { ...process.env, PATH: process.env.PATH },
+      stdio: 'inherit',
     })
 
     return parseBuildOutput(output)
   } catch (error) {
-    console.error(error)
-
     throw new Error(`Failed to build Move package: ${error}`)
   }
 }

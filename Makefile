@@ -30,7 +30,7 @@ clippy:
 	cargo clippy --all-targets --all-features -- --no-deps -D warnings
 
 test:
-	cargo nextest run --all-targets --all-features
+	cargo nextest run --all-targets --all-features --no-tests pass
 
 build:
 	cargo build
