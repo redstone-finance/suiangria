@@ -31,6 +31,7 @@
     "src/ts",
     "index.node",
     "index.d.ts",
+    "suiangria.darwin-arm64.node",
     "index.js"
   ],
   "napi": {
