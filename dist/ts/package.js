@@ -2,45 +2,25 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.publishPackage = publishPackage;
 const child_process_1 = require("child_process");
-const fs_1 = require("fs");
 function publishPackage(sandbox, movePackageSrcDir, owner) {
-    const sui = findSuiBinary();
-    const buildOutput = compileMovePackage(sui, movePackageSrcDir);
+    const buildOutput = compileMovePackage(movePackageSrcDir);
     const moduleBytes = extractModuleBytes(buildOutput);
     const dependencyIds = extractDependencyIds(buildOutput);
     return sandbox.publishPackage(moduleBytes, dependencyIds, owner);
 }
-function compileMovePackage(suiPath, packageDir) {
-    const buildCommand = `${suiPath} move build --path ${packageDir} --dump-bytecode-as-base64 --skip-fetch-latest-git-deps`;
+function compileMovePackage(packageDir) {
+    const buildCommand = `sui move build --path ${packageDir} --dump-bytecode-as-base64 --skip-fetch-latest-git-deps`;
     try {
         const output = (0, child_process_1.execSync)(buildCommand, {
             encoding: 'utf8',
             env: { ...process.env, PATH: process.env.PATH },
+            stdio: ['inherit', 'pipe', 'inherit'],
         });
         return parseBuildOutput(output);
     }
     catch (error) {
-        console.error(error);
         throw new Error(`Failed to build Move package: ${error}`);
     }
-}
-function findSuiBinary() {
-    try {
-        const path = (0, child_process_1.execSync)('which sui', { encoding: 'utf8' }).trim();
-        if (path)
-            return path;
-    }
-    catch { }
-    const possiblePaths = [
-        '/usr/local/bin/sui',
-        `${process.env.HOME}/.cargo/bin/sui`,
-        `${process.env.HOME}/.local/bin/sui`,
-    ];
-    for (const path of possiblePaths) {
-        if ((0, fs_1.existsSync)(path))
-            return path;
-    }
-    return 'sui';
 }
 function parseBuildOutput(output) {
     const jsonMatch = output.match(/\{[\s\S]*\}/);

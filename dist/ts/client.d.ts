@@ -13,6 +13,7 @@ export declare class SandboxClient {
     behaviourApi(): import("../../index").BehaviourApi;
     packageApi(): import("../../index").PackageApi;
     stateApi(): import("../../index").StateApi;
+    storageApi(): import("../../index").StorageApi;
     getCoins(address: string, coinType?: string | null): any;
     executeTransactionBlock(input: {
         transactionBlock: Uint8Array | string;

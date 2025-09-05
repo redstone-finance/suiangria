@@ -28,6 +28,9 @@ class SandboxClient {
     stateApi() {
         return this.sandbox.stateApi();
     }
+    storageApi() {
+        return this.sandbox.storageApi();
+    }
     getCoins(address, coinType) {
         return JSON.parse(this.coinApi().getCoins(address, coinType));
     }

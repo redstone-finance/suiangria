@@ -51,7 +51,7 @@ function createSandboxClient() {
                         ...input,
                     });
                 },
-                async waitForTransaction({ signal, timeout, pollInterval, ...input }) {
+                async waitForTransaction({ ...input }) {
                     return sandbox.getTransaction(input.digest);
                 },
                 async getNormalizedMoveFunction(params) {

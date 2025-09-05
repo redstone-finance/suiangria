@@ -121,7 +121,9 @@ typings/
 /target
 Cargo.lock
 
-*.node
+# include for now
+# *.node
+
 .pnp.*
 .yarn/*
 !.yarn/patches
