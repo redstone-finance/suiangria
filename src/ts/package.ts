@@ -22,7 +22,7 @@ function compileMovePackage(packageDir: string): BuildOutput {
     const output = execSync(buildCommand, {
       encoding: 'utf8',
       env: { ...process.env, PATH: process.env.PATH },
-      stdio: 'inherit',
+      stdio: ['inherit', 'pipe', 'inherit'],
     })
 
     return parseBuildOutput(output)

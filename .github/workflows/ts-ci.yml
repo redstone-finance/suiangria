@@ -50,7 +50,9 @@ jobs:
         run: yarn build:ts
 
       - name: Install sui cli
-        run: brew install sui
+        run: |
+          brew install sui
+          sui client -y
 
       - name: Run tests
         run: yarn test

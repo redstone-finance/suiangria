@@ -54,7 +54,7 @@ const coinId = sandbox.mintSui('0x...', 1000000000)
 // now you can use client in tests as you would normally use SuiClient.
 const yourApplicationApi = new YourApplicationApi(client)
 
-// There might be problems that the ts will scream that the client is not compatible to expected.
+// There might be problems that the ts will scream that the client is not compatible to expected class.
 // for now you will need to do something like this:
 const yourApplicationApi = new YourApplicationApi(client as any as SuiClient)
 ```
@@ -77,8 +77,6 @@ const yourApplicationApi = new YourApplicationApi(client as any as SuiClient)
     const adminCapId = adminCap?.type === 'created' ? adminCap.objectId : ''
 
     return { client, sandbox, packageId, adminCapId, sender, publishResult }
-
-    return { client, sandbox, packageId, sender, publishResult }
   }
 
   describe('Admin package', () => {
