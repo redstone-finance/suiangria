@@ -195,6 +195,10 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
+      - name: Install sui cli
+        run: |
+          brew install sui
+          sui client -y
       - name: Test bindings
         run: yarn test
   test-linux-binding:
@@ -260,6 +264,10 @@ jobs:
           platforms: all
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
         if: ${{ contains(matrix.target, 'armv7') }}
+      - name: Install sui cli
+        run: |
+          brew install sui
+          sui client -y
       - name: Test bindings
         uses: addnab/docker-run-action@v3
         with:
@@ -290,6 +298,10 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
+      - name: Install sui cli
+        run: |
+          brew install sui
+          sui client -y
       - name: Test bindings
         run: yarn test
         env:
