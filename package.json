@@ -1,5 +1,5 @@
 {
-  "name": "suiangria",
+  "name": "@redstone-finance/suiangria",
   "version": "1.0.0",
   "description": "Template project for writing node package with napi-rs",
   "repository": "git@github.com:napi-rs/package-template.git",
@@ -64,8 +64,9 @@
     "artifacts": "napi artifacts",
     "test": "yarn build:rust && jest",
     "test:debug": "yarn build:debug && jest",
-    "build": "yarn build:rust && yarn build:ts",
+    "build:all": "yarn build:rust && yarn build:ts",
     "build:rust": "napi build --platform --release",
+    "build": "yarn build:rust",
     "build:ts": "tsc",
     "build:debug": "napi build --platform",
     "format": "run-p format:prettier format:rs format:toml",

@@ -2,7 +2,7 @@ name: Artifact Build
 
 env:
   DEBUG: napi:*
-  APP_NAME: suiangria
+  APP_NAME: "@redstone-finance/suiangria"
   CARGO_INCREMENTAL: '1'
 
 on:
