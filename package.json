@@ -1,7 +1,8 @@
 {
   "name": "@redstone-finance/suiangria",
   "version": "1.0.0",
-  "description": "Template project for writing node package with napi-rs",
+  "author": "RedStone Team <dev@redstone.finance>",
+  "description": "Sui move environment in memory",
   "repository": "git@github.com:napi-rs/package-template.git",
   "license": "MIT",
   "keywords": [

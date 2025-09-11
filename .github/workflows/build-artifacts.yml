@@ -2,7 +2,7 @@ name: Artifact Build
 
 env:
   DEBUG: napi:*
-  APP_NAME: "@redstone-finance/suiangria"
+  APP_NAME: "suiangria"
   CARGO_INCREMENTAL: '1'
 
 on:
@@ -70,6 +70,8 @@ jobs:
         with:
           node-version: 22
           cache: yarn
+      - name: Remove toolchain for artifact building
+        run: rm rust-toolchain.toml
       - name: Install
         uses: dtolnay/rust-toolchain@stable
         with:
