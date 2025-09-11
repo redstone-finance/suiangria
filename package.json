@@ -31,7 +31,7 @@
     "src/ts",
     "index.node",
     "index.d.ts",
-    "suiangria.darwin-arm64.node",
+    "suiangria.*.node",
     "index.js"
   ],
   "napi": {
@@ -40,7 +40,17 @@
       "x86_64-pc-windows-msvc",
       "x86_64-apple-darwin",
       "x86_64-unknown-linux-gnu",
-      "aarch64-apple-darwin"
+      "x86_64-unknown-linux-musl",
+      "aarch64-unknown-linux-gnu",
+      "i686-pc-windows-msvc",
+      "armv7-unknown-linux-gnueabihf",
+      "aarch64-apple-darwin",
+      "aarch64-linux-android",
+      "x86_64-unknown-freebsd",
+      "aarch64-unknown-linux-musl",
+      "aarch64-pc-windows-msvc",
+      "armv7-linux-androideabi",
+      "wasm32-wasip1-threads"
     ]
   },
   "engines": {
@@ -66,6 +76,7 @@
     "prepublishOnly": "napi prepublish -t npm",
     "version": "napi version",
     "prepare": "husky",
+    "preversion": "napi build --platform && git add .",
     "build:ts:watch": "tsc --watch",
     "clean": "rm -rf dist *.node"
   },
