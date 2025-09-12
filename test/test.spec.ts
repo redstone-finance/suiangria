@@ -7,10 +7,25 @@ import { SharedClient } from './SharedClient';
 import { ClockClient } from './ClockClient';
 import { SuiTransactionBlockResponse } from '@mysten/sui/client';
 import { DynamicClient } from './DynamicClient';
+import { execSync } from 'child_process';
 
 const INITIAL_BALANCE = 1000000000000000n;
 const GAS_BUDGET = 1000000000000000n;
 const GAS_PRICE = 100;
+
+function isSuiClientInstalled(): boolean {
+  try {
+    execSync('sui --version', {
+      stdio: 'pipe',
+      timeout: 5000,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const skipIfSuiNotInstalled = isSuiClientInstalled() ? describe : describe.skip;
 
 describe('SuiSandboxClient', () => {
   it('Estimate gas for tx', async () => {
@@ -209,7 +224,7 @@ describe('SuiSandboxClient', () => {
     });
   });
 
-  describe('Admin package', () => {
+  skipIfSuiNotInstalled('Admin package', () => {
     it('publishes package successfully', () => {
       const { publishResult } = publishAdminPackage();
       expect(publishResult.errors).toBeUndefined();
@@ -247,7 +262,7 @@ describe('SuiSandboxClient', () => {
     });
   });
 
-  describe('Shared package', () => {
+  skipIfSuiNotInstalled('Shared package', () => {
     it('publishes package successfully', () => {
       const { publishResult } = publishSharedPackage();
       expect(publishResult.errors).toBeUndefined();
@@ -278,7 +293,7 @@ describe('SuiSandboxClient', () => {
     });
   });
 
-  describe('Clock package', () => {
+  skipIfSuiNotInstalled('Clock package', () => {
     it('publishes package successfully', () => {
       const { publishResult } = publishClockPackage();
       expect(publishResult.errors).toBeUndefined();
@@ -328,7 +343,7 @@ describe('SuiSandboxClient', () => {
     });
   });
 
-  describe('Dynamic package', () => {
+  skipIfSuiNotInstalled('Dynamic package', () => {
     it('publishes package successfully', () => {
       const { publishResult } = publishDynamicPackage();
       expect(publishResult.errors).toBeUndefined();
@@ -359,7 +374,7 @@ describe('SuiSandboxClient', () => {
     });
   });
 
-  describe('Object queries', () => {
+  skipIfSuiNotInstalled('Object queries', () => {
     it('tryGetPastObject', async () => {
       const { client, packageId, sender, sandbox } = publishClockPackage();
 

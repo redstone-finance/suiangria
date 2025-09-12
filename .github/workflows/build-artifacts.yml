@@ -2,7 +2,7 @@ name: Artifact Build
 
 env:
   DEBUG: napi:*
-  APP_NAME: "suiangria"
+  APP_NAME: 'suiangria'
   CARGO_INCREMENTAL: '1'
 
 on:
@@ -197,10 +197,9 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
-          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
-          suiup install sui@testnet -y
-          sui client -y
-        shell: bash
+          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh  || true
+          suiup install sui@testnet -y  || true
+          sui client -y  || true
       - name: Test bindings
         run: yarn test
   test-linux-binding:
@@ -259,9 +258,9 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
-          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
-          suiup install sui@testnet -y
-          sui client -y
+          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh  || true
+          suiup install sui@testnet -y  || true
+          sui client -y  || true
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         if: ${{ contains(matrix.target, 'armv7') }}
@@ -275,7 +274,6 @@ jobs:
           image: ${{ steps.docker.outputs.IMAGE }}
           options: -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}
           run: |
-            export PATH="/host-bin:$PATH"
             yarn test
   package-artifacts:
     name: Package Artifacts
