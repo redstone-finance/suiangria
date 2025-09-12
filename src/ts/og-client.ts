@@ -1,5 +1,5 @@
 export function xxx() {
-  return 'Just so I dont have to search through github...'
+  return 'Just so I dont have to search through github...';
 }
 
 // // Copyright (c) Mysten Labs, Inc.
