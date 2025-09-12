@@ -257,6 +257,11 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
+      - name: Install sui cli
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+          suiup install sui@testnet -y
+          sui client -y
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         if: ${{ contains(matrix.target, 'armv7') }}
@@ -270,9 +275,7 @@ jobs:
           image: ${{ steps.docker.outputs.IMAGE }}
           options: -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}
           run: |
-            curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
-            suiup install sui@testnet -y
-            sui client -y
+            export PATH="/host-bin:$PATH"
             yarn test
   package-artifacts:
     name: Package Artifacts
