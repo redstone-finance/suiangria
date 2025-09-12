@@ -60,7 +60,8 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "test": "yarn build:rust && jest",
+    "build:test": "yarn build:rust && jest",
+    "test": "jest",
     "test:debug": "yarn build:debug && jest",
     "build:all": "yarn build:rust && yarn build:ts",
     "build:rust": "napi build --platform --release",
