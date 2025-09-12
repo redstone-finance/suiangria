@@ -196,10 +196,11 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Install sui cli
+        if: ${{ runner.os != 'Windows' }}
         run: |
-          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh  || true
-          suiup install sui@testnet -y  || true
-          sui client -y  || true
+          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh || true
+          suiup install sui@testnet -y || true
+          sui client -y || true
       - name: Test bindings
         run: yarn test
   test-linux-binding:
@@ -258,9 +259,9 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
-          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh  || true
-          suiup install sui@testnet -y  || true
-          sui client -y  || true
+          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh || true
+          suiup install sui@testnet -y || true
+          sui client -y || true
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         if: ${{ contains(matrix.target, 'armv7') }}
