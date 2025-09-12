@@ -197,7 +197,7 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
-          brew install sui
+          cargo install --locked --git https://github.com/MystenLabs/sui.git --branch testnet sui --features tracing
           sui client -y
       - name: Test bindings
         run: yarn test
@@ -266,7 +266,7 @@ jobs:
         if: ${{ contains(matrix.target, 'armv7') }}
       - name: Install sui cli
         run: |
-          brew install sui
+          cargo install --locked --git https://github.com/MystenLabs/sui.git --branch testnet sui --features tracing
           sui client -y
       - name: Test bindings
         uses: addnab/docker-run-action@v3
@@ -300,7 +300,7 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
-          brew install sui
+          cargo install --locked --git https://github.com/MystenLabs/sui.git --branch testnet sui --features tracing
           sui client -y
       - name: Test bindings
         run: yarn test
