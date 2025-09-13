@@ -24,8 +24,9 @@ function isSuiClientInstalled(): boolean {
     return false;
   }
 }
+const suiRequired = process.env.SUI_REQUIRED || 'NO';
 
-const skipIfSuiNotInstalled = isSuiClientInstalled() ? describe : describe.skip;
+const skipIfSuiNotInstalled = suiRequired === 'YES' || isSuiClientInstalled() ? describe : describe.skip;
 
 describe('SuiSandboxClient', () => {
   it('Estimate gas for tx', async () => {
