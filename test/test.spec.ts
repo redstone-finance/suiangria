@@ -24,7 +24,7 @@ function isSuiClientInstalled(): boolean {
     return false;
   }
 }
-const suiRequired = process.env.SUI_REQUIRED || 'NO';
+const suiRequired = process.env.SUI_REQUIRED || 'YES';
 
 const skipIfSuiNotInstalled = suiRequired === 'YES' || isSuiClientInstalled() ? describe : describe.skip;
 
