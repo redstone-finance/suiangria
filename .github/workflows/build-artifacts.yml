@@ -196,7 +196,6 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Install sui cli
-        if: ${{ runner.os != 'Windows' }}
         run: |
           cargo install --locked --git https://github.com/MystenLabs/sui.git --branch testnet sui --features tracing
       - name: Test bindings
