@@ -254,9 +254,6 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
-      - name: Install sui cli
-        run: |
-          cargo install --locked --git https://github.com/MystenLabs/sui.git --branch testnet sui --features tracing
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         if: ${{ contains(matrix.target, 'armv7') }}
@@ -270,6 +267,7 @@ jobs:
           image: ${{ steps.docker.outputs.IMAGE }}
           options: -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}
           run: |
+            cargo install --locked --git https://github.com/MystenLabs/sui.git --branch testnet sui --features tracing
             yarn test
   package-artifacts:
     name: Package Artifacts
