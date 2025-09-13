@@ -55,4 +55,4 @@ jobs:
           sui client -y
 
       - name: Run tests
-        run: yarn test
+        run: SUI_REQUIRED=YES yarn build:test

@@ -43,20 +43,20 @@ The following features represent the intended functionality. Not all features ar
 ## Quick Start
 
 ```typescript
-import { createSandboxClient } from 'suiangria'
-import { Transaction } from '@mysten/sui/transactions'
+import { createSandboxClient } from 'suiangria';
+import { Transaction } from '@mysten/sui/transactions';
 
-const { client, sandbox } = createSandboxClient()
+const { client, sandbox } = createSandboxClient();
 
 // Fund an address
-const coinId = sandbox.mintSui('0x...', 1000000000)
+const coinId = sandbox.mintSui('0x...', 1000000000);
 
 // now you can use client in tests as you would normally use SuiClient.
-const yourApplicationApi = new YourApplicationApi(client)
+const yourApplicationApi = new YourApplicationApi(client);
 
 // There might be problems that the ts will scream that the client is not compatible to expected class.
 // for now you will need to do something like this:
-const yourApplicationApi = new YourApplicationApi(client as any as SuiClient)
+const yourApplicationApi = new YourApplicationApi(client as any as SuiClient);
 ```
 
 ## Signature free testing
@@ -159,9 +159,9 @@ yarn test:debug
 
 ```typescript
 function createSandboxClient(): {
-  client: SuiClient // Drop-in replacement for @mysten/sui SuiClient
-  sandbox: SandboxClient // Additional sandbox controls
-}
+  client: SuiClient; // Drop-in replacement for @mysten/sui SuiClient
+  sandbox: SandboxClient; // Additional sandbox controls
+};
 ```
 
 ## Platform Support

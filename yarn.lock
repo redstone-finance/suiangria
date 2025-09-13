@@ -2218,6 +2218,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@redstone-finance/suiangria@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria@workspace:."
+  dependencies:
+    "@emnapi/core": "npm:^1.4.5"
+    "@emnapi/runtime": "npm:^1.4.5"
+    "@mysten/bcs": "npm:^1.6.2"
+    "@mysten/sui": "npm:^1.31.0"
+    "@napi-rs/cli": "npm:^3.0.3"
+    "@oxc-node/core": "npm:^0.0.32"
+    "@taplo/cli": "npm:^0.7.0"
+    "@tybys/wasm-util": "npm:^0.10.0"
+    "@types/jest": "npm:^30.0.0"
+    "@types/node": "npm:^24.3.0"
+    ava: "npm:^6.4.1"
+    chalk: "npm:^5.4.1"
+    husky: "npm:^9.1.7"
+    jest: "npm:^30.0.5"
+    lint-staged: "npm:^16.1.2"
+    npm-run-all2: "npm:^8.0.4"
+    oxlint: "npm:^1.8.0"
+    prettier: "npm:^3.6.2"
+    tinybench: "npm:^4.0.1"
+    ts-jest: "npm:^29.4.1"
+    ts-node: "npm:^10.9.2"
+    typescript: "npm:^5.8.3"
+    zod: "npm:^4.0.17"
+  peerDependencies:
+    "@mysten/sui": ^1.31.0
+  languageName: unknown
+  linkType: soft
+
 "@rollup/pluginutils@npm:^5.1.3":
   version: 5.2.0
   resolution: "@rollup/pluginutils@npm:5.2.0"
@@ -5916,38 +5948,6 @@ __metadata:
   checksum: 10c0/9681a6257b925a7fa0f285851c0e613cc934a50661fa7bb41ca9cbbff89686bb4a0ee366e6ecedc4daafd01e83eee0720111ab294366fe7c185e935475ebcecd
   languageName: node
   linkType: hard
-
-"suiangria@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "suiangria@workspace:."
-  dependencies:
-    "@emnapi/core": "npm:^1.4.5"
-    "@emnapi/runtime": "npm:^1.4.5"
-    "@mysten/bcs": "npm:^1.6.2"
-    "@mysten/sui": "npm:^1.31.0"
-    "@napi-rs/cli": "npm:^3.0.3"
-    "@oxc-node/core": "npm:^0.0.32"
-    "@taplo/cli": "npm:^0.7.0"
-    "@tybys/wasm-util": "npm:^0.10.0"
-    "@types/jest": "npm:^30.0.0"
-    "@types/node": "npm:^24.3.0"
-    ava: "npm:^6.4.1"
-    chalk: "npm:^5.4.1"
-    husky: "npm:^9.1.7"
-    jest: "npm:^30.0.5"
-    lint-staged: "npm:^16.1.2"
-    npm-run-all2: "npm:^8.0.4"
-    oxlint: "npm:^1.8.0"
-    prettier: "npm:^3.6.2"
-    tinybench: "npm:^4.0.1"
-    ts-jest: "npm:^29.4.1"
-    ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.8.3"
-    zod: "npm:^4.0.17"
-  peerDependencies:
-    "@mysten/sui": ^1.31.0
-  languageName: unknown
-  linkType: soft
 
 "supertap@npm:^3.0.1":
   version: 3.0.1
