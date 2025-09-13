@@ -196,8 +196,13 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Install sui cli
+        if: ${{ runner.os != 'Windows' }}
         run: |
-          cargo install --locked --git https://github.com/MystenLabs/sui.git --branch testnet sui --features tracing
+          brew install sui
+      - name: Install sui cli
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          choco install sui
       - name: Test bindings
         run: yarn test
   test-linux-binding:
@@ -267,7 +272,9 @@ jobs:
           image: ${{ steps.docker.outputs.IMAGE }}
           options: -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}
           run: |
-            cargo install --locked --git https://github.com/MystenLabs/sui.git --branch testnet sui --features tracing
+            curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh || true
+            suiup install sui@testnet -y || true
+            sui client -y || true
             yarn test
   package-artifacts:
     name: Package Artifacts
