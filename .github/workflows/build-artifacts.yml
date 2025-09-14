@@ -287,10 +287,12 @@ jobs:
             fi
             
             curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+            
             export PATH="/root/.local/bin:$PATH"
+            
             suiup install sui@testnet -y
             suiup doctor
-            sui client -y
+            /root/.local/bin/sui client -y
 
             yarn test
   package-artifacts:
