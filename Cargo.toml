@@ -3,7 +3,7 @@
 authors = ["RedStone Team <dev@redstone.finance>"]
 edition = "2021"
 name    = "suiangria"
-version = "0.1.0"
+version = "0.0.1"
 
 metadata.cargo-machete = { ignored = ["napi-build"] }
 
