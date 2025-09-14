@@ -121,6 +121,7 @@ dist
 Cargo.lock
 
 *.node
+!./npm-packages/**.node
 
 .pnp.*
 .yarn/*
@@ -130,3 +131,5 @@ Cargo.lock
 !.yarn/sdks
 !.yarn/versions
 /npm
+
+**/.DS_Store

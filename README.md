@@ -11,7 +11,15 @@ Above means that if you use this library for testing your Sui dApps, passing tes
 
 ## Installation
 
-Todo: Installation instructions
+For now there is no npm package. Instead you need to run:
+
+```bash
+yarn add -D "@redstone-finance/suiangria@git+https://github.com/redstone-finance/suiangria.git#v0.0.1"
+
+npm i -D "@redstone-finance/suiangria@git+https://github.com/redstone-finance/suiangria.git#v0.0.1"
+```
+
+Or instead of v0.0.1 to some other release tag.
 
 ## Features (Desired Feature Set)
 
@@ -54,8 +62,8 @@ const coinId = sandbox.mintSui('0x...', 1000000000);
 // now you can use client in tests as you would normally use SuiClient.
 const yourApplicationApi = new YourApplicationApi(client);
 
-// There might be problems that the ts will scream that the client is not compatible to expected class.
-// for now you will need to do something like this:
+// TypeScript may complain about type incompatibility between the client and expected interface.
+// For now, you'll need to cast through `any` like this:
 const yourApplicationApi = new YourApplicationApi(client as any as SuiClient);
 ```
 
@@ -175,7 +183,30 @@ Pre-built binaries are available for:
 
 ## Release Process
 
-Todo: Make releases workflow and push to npm.
+- Paste into package.json:
+
+```json
+  "optionalDependencies": {
+    "@redstone-finance/suiangria-android-arm-eabi": "file:./npm-packages/android-arm-eabi",
+    "@redstone-finance/suiangria-android-arm64": "file:./npm-packages/android-arm64",
+    "@redstone-finance/suiangria-darwin-arm64": "file:./npm-packages/darwin-arm64",
+    "@redstone-finance/suiangria-darwin-x64": "file:./npm-packages/darwin-x64",
+    "@redstone-finance/suiangria-freebsd-x64": "file:./npm-packages/freebsd-x64",
+    "@redstone-finance/suiangria-linux-arm64-musl": "file:./npm-packages/linux-arm64-musl",
+    "@redstone-finance/suiangria-linux-x64-gnu": "file:./npm-packages/linux-x64-gnu",
+    "@redstone-finance/suiangria-linux-x64-musl": "file:./npm-packages/linux-x64-musl",
+    "@redstone-finance/suiangria-win32-arm64-msvc": "file:./npm-packages/win32-arm64-msvc",
+    "@redstone-finance/suiangria-win32-ia32-msvc": "file:./npm-packages/win32-ia32-msvc",
+    "@redstone-finance/suiangria-win32-x64-msvc": "file:./npm-packages/win32-x64-msvc"
+  }
+```
+
+- Bump versions in `Cargo.toml` and `package.json`.
+- Push and merge the above changes to main.
+- Wait for artifacts to be built in the CI workflow running on main.
+- Create a new branch `release-vX.X.X` matching the version in `package.json`.
+- Copy the generated `npm-packages` directory into the new branch.
+- Push the release branch and create a new release from it with tag `vX.X.X`.
 
 ## Credits
 

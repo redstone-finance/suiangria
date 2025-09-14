@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "author": "RedStone Team <dev@redstone.finance>",
   "description": "Sui move environment in memory",
-  "repository": "git@github.com:napi-rs/package-template.git",
+  "repository": "git@github.com:redstone-finance/suiangria.git",
   "license": "MIT",
   "keywords": [
     "napi-rs",
@@ -13,18 +13,16 @@
     "node-addon",
     "node-addon-api"
   ],
-  "exports": {
-    ".": {
-      "import": "./src/ts/index.ts",
-      "types": "./src/ts/index.ts"
-    }
-  },
-  "main": "src/ts/index.ts",
+  "main": "dist/ts/index.js",
+  "types": "dist/ts/index.d.ts",
   "files": [
     "src/ts",
     "index.d.ts",
     "src/ts/**/*",
-    "*.node"
+    "*.node",
+    "index.js",
+    "npm-packages",
+    "tsconfig.json"
   ],
   "napi": {
     "binaryName": "suiangria",
@@ -69,7 +67,8 @@
     "prepare": "husky",
     "preversion": "napi build --platform && git add .",
     "build:ts:watch": "tsc --watch",
-    "clean": "rm -rf dist *.node"
+    "clean": "rm -rf dist *.node",
+    "postinstall": "npm run build:ts"
   },
   "dependencies": {
     "@mysten/bcs": "^1.6.2"
