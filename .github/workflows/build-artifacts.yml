@@ -288,8 +288,8 @@ jobs:
             
             curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
             export PATH="/root/.local/bin:$PATH"
-            suiup doctor
             suiup install sui@testnet -y
+            suiup doctor
             sui client -y
 
             yarn test
