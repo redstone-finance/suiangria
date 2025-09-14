@@ -19,7 +19,8 @@
       "types": "./src/ts/index.ts"
     }
   },
-  "main": "src/ts/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "src/ts",
     "index.d.ts",
@@ -71,7 +72,8 @@
     "prepare": "husky",
     "preversion": "napi build --platform && git add .",
     "build:ts:watch": "tsc --watch",
-    "clean": "rm -rf dist *.node"
+    "clean": "rm -rf dist *.node",
+    "postinstall": "npm run build:ts"
   },
   "dependencies": {
     "@mysten/bcs": "^1.6.2"
