@@ -183,12 +183,30 @@ Pre-built binaries are available for:
 
 ## Release Process
 
-1. Bump versions in `Cargo.toml` and `package.json`.
-2. Push and merge the above changes to main.
-3. Wait for artifacts to be built in the CI workflow running on main.
-4. Create a new branch `release-vX.X.X` matching the version in `package.json`.
-5. Copy the generated `npm-packages` directory into the new branch.
-6. Push the release branch and create a new release from it with tag `vX.X.X`.
+- Paste into package.json:
+
+```json
+  "optionalDependencies": {
+    "@redstone-finance/suiangria-android-arm-eabi": "file:./npm-packages/android-arm-eabi",
+    "@redstone-finance/suiangria-android-arm64": "file:./npm-packages/android-arm64",
+    "@redstone-finance/suiangria-darwin-arm64": "file:./npm-packages/darwin-arm64",
+    "@redstone-finance/suiangria-darwin-x64": "file:./npm-packages/darwin-x64",
+    "@redstone-finance/suiangria-freebsd-x64": "file:./npm-packages/freebsd-x64",
+    "@redstone-finance/suiangria-linux-arm64-musl": "file:./npm-packages/linux-arm64-musl",
+    "@redstone-finance/suiangria-linux-x64-gnu": "file:./npm-packages/linux-x64-gnu",
+    "@redstone-finance/suiangria-linux-x64-musl": "file:./npm-packages/linux-x64-musl",
+    "@redstone-finance/suiangria-win32-arm64-msvc": "file:./npm-packages/win32-arm64-msvc",
+    "@redstone-finance/suiangria-win32-ia32-msvc": "file:./npm-packages/win32-ia32-msvc",
+    "@redstone-finance/suiangria-win32-x64-msvc": "file:./npm-packages/win32-x64-msvc"
+  }
+```
+
+- Bump versions in `Cargo.toml` and `package.json`.
+- Push and merge the above changes to main.
+- Wait for artifacts to be built in the CI workflow running on main.
+- Create a new branch `release-vX.X.X` matching the version in `package.json`.
+- Copy the generated `npm-packages` directory into the new branch.
+- Push the release branch and create a new release from it with tag `vX.X.X`.
 
 ## Credits
 
