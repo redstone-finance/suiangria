@@ -13,26 +13,10 @@
     "node-addon",
     "node-addon-api"
   ],
-  "main": "dist/ts/index.js",
-  "types": "dist/ts/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/ts/index.d.ts",
-      "require": "./dist/ts/index.js",
-      "import": "./dist/ts/index.js"
-    },
-    "./native": {
-      "types": "./index.d.ts",
-      "require": "./index.js",
-      "import": "./index.js"
-    }
-  },
+  "main": "src/ts/index.ts",
   "files": [
-    "dist",
     "src/ts",
-    "index.node",
     "index.d.ts",
-    "suiangria.*.node",
     "index.js"
   ],
   "napi": {

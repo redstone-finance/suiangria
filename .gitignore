@@ -86,8 +86,7 @@ typings/
 # Nuxt.js build / generate output
 .nuxt
 
-# for now also commit build files
-!dist
+dist
 
 # Gatsby files
 .cache/
@@ -121,8 +120,7 @@ typings/
 /target
 Cargo.lock
 
-# include for now
-# *.node
+*.node
 
 .pnp.*
 .yarn/*
