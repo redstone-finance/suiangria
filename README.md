@@ -11,7 +11,15 @@ Above means that if you use this library for testing your Sui dApps, passing tes
 
 ## Installation
 
-Todo: Installation instructions
+For now there is no npm package. Instead you need to run:
+
+```bash
+yarn add -D "@redstone-finance/suiangria@git+https://github.com/redstone-finance/suiangria.git#v0.0.1"
+
+npm i -D "@redstone-finance/suiangria@git+https://github.com/redstone-finance/suiangria.git#v0.0.1"
+```
+
+Or instead of v0.0.1 to some other release tag.
 
 ## Features (Desired Feature Set)
 
@@ -54,8 +62,8 @@ const coinId = sandbox.mintSui('0x...', 1000000000);
 // now you can use client in tests as you would normally use SuiClient.
 const yourApplicationApi = new YourApplicationApi(client);
 
-// There might be problems that the ts will scream that the client is not compatible to expected class.
-// for now you will need to do something like this:
+// TypeScript may complain about type incompatibility between the client and expected interface.
+// For now, you'll need to cast through `any` like this:
 const yourApplicationApi = new YourApplicationApi(client as any as SuiClient);
 ```
 
@@ -175,7 +183,12 @@ Pre-built binaries are available for:
 
 ## Release Process
 
-Todo: Make releases workflow and push to npm.
+1. Bump versions in `Cargo.toml` and `package.json`.
+2. Push and merge the above changes to main.
+3. Wait for artifacts to be built in the CI workflow running on main.
+4. Create a new branch `release-vX.X.X` matching the version in `package.json`.
+5. Copy the generated `npm-packages` directory into the new branch.
+6. Push the release branch and create a new release from it with tag `vX.X.X`.
 
 ## Credits
 
