@@ -13,27 +13,18 @@
     "node-addon",
     "node-addon-api"
   ],
-  "main": "dist/ts/index.js",
-  "types": "dist/ts/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/ts/index.d.ts",
-      "require": "./dist/ts/index.js",
-      "import": "./dist/ts/index.js"
-    },
-    "./native": {
-      "types": "./index.d.ts",
-      "require": "./index.js",
-      "import": "./index.js"
+      "import": "./src/ts/index.ts",
+      "types": "./src/ts/index.ts"
     }
   },
+  "main": "src/ts/index.ts",
   "files": [
-    "dist",
     "src/ts",
-    "index.node",
     "index.d.ts",
-    "suiangria.*.node",
-    "index.js"
+    "src/ts/**/*",
+    "*.node"
   ],
   "napi": {
     "binaryName": "suiangria",
@@ -64,10 +55,10 @@
     "test": "jest",
     "test:debug": "yarn build:debug && jest",
     "build:all": "yarn build:rust && yarn build:ts",
-    "build:rust": "napi build --platform --release",
+    "build:rust": "napi build --platform --release && yarn format:prettier",
     "build": "yarn build:rust",
     "build:ts": "tsc",
-    "build:debug": "napi build --platform",
+    "build:debug": "napi build --platform && yarn format:prettier",
     "format": "run-p format:prettier format:rs format:toml",
     "format:prettier": "prettier . -w",
     "format:toml": "taplo format",
