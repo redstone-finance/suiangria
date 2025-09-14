@@ -293,7 +293,7 @@ jobs:
             suiup install sui@testnet -y
             suiup doctor
 
-            ls -R /root
+            ls -aR /root
 
             /root/.local/bin/sui client -y
 
