@@ -6,7 +6,9 @@ env:
   CARGO_INCREMENTAL: '1'
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
 
 permissions:
   contents: write
