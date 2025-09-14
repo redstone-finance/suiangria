@@ -25,6 +25,7 @@
     "index.d.ts",
     "src/ts/**/*",
     "*.node",
+    "index.js",
     "npm-packages"
   ],
   "napi": {
