@@ -23,7 +23,8 @@
   "files": [
     "src/ts",
     "index.d.ts",
-    "src/ts/**/*"
+    "src/ts/**/*",
+    "*.node"
   ],
   "napi": {
     "binaryName": "suiangria",
@@ -54,10 +55,10 @@
     "test": "jest",
     "test:debug": "yarn build:debug && jest",
     "build:all": "yarn build:rust && yarn build:ts",
-    "build:rust": "napi build --platform --release",
+    "build:rust": "napi build --platform --release && yarn format:prettier",
     "build": "yarn build:rust",
     "build:ts": "tsc",
-    "build:debug": "napi build --platform",
+    "build:debug": "napi build --platform && yarn format:prettier",
     "format": "run-p format:prettier format:rs format:toml",
     "format:prettier": "prettier . -w",
     "format:toml": "taplo format",
