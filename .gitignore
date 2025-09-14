@@ -121,7 +121,7 @@ dist
 Cargo.lock
 
 *.node
-!./npm-packages/**.node
+!./npm-packages/**/*.node
 
 .pnp.*
 .yarn/*
