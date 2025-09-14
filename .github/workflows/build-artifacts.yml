@@ -204,7 +204,9 @@ jobs:
         run: |
           choco install sui
       - name: Test bindings
-        run: yarn test
+        run: |
+          sui move build --path ./move-fixtures/clock --dump-bytecode-as-base64 --skip-fetch-latest-git-deps
+          yarn test
   test-linux-binding:
     name: Test ${{ matrix.target }} - node@${{ matrix.node }}
     needs:
@@ -259,6 +261,11 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
+      - name: Install sui cli
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh || true
+          suiup install sui@testnet -y || true
+          sui client -y || true
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         if: ${{ contains(matrix.target, 'armv7') }}
@@ -272,9 +279,7 @@ jobs:
           image: ${{ steps.docker.outputs.IMAGE }}
           options: -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}
           run: |
-            curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh || true
-            suiup install sui@testnet -y || true
-            sui client -y || true
+            sui move build --path ./move-fixtures/clock --dump-bytecode-as-base64 --skip-fetch-latest-git-deps
             yarn test
   package-artifacts:
     name: Package Artifacts
