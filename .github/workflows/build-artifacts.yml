@@ -294,6 +294,9 @@ jobs:
             suiup doctor
 
             ls -aR /root
+            ls -la /root/.local/bin/sui
+            readlink -f /root/.local/bin/sui
+            file /root/.local/bin/sui
 
             /root/.local/bin/sui client -y
 
