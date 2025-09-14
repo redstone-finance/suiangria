@@ -4,13 +4,13 @@ const colors = {
   error: '\x1b[31m',
   info: '\x1b[34m',
   debug: '\x1b[37m',
-}
+};
 
 const simpleLog =
   (level: keyof typeof colors) =>
   (...args: unknown[]) => {
-    process.stdout.write(`${colors[level]}` + args.join(' ') + `${colors.reset}\n`)
-  }
+    process.stdout.write(`${colors[level]}` + args.join(' ') + `${colors.reset}\n`);
+  };
 
 global.console = {
   ...global.console,
@@ -19,4 +19,4 @@ global.console = {
   debug: simpleLog('debug'),
   error: simpleLog('error'),
   info: simpleLog('info'),
-}
+};

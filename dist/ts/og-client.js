@@ -1,8 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.xxx = xxx;
 function xxx() {
-    return 'Just so I dont have to search through github...';
+  return 'Just so I dont have to search through github...';
 }
 // // Copyright (c) Mysten Labs, Inc.
 // // SPDX-License-Identifier: Apache-2.0

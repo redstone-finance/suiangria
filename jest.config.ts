@@ -1,4 +1,4 @@
-import type { Config } from '@jest/types'
+import type { Config } from '@jest/types';
 
 const config: Config.InitialOptions = {
   collectCoverage: true,
@@ -9,6 +9,6 @@ const config: Config.InitialOptions = {
   setupFiles: ['./jest.setup.ts'],
   testPathIgnorePatterns: ['<rootDir>/dist/'],
   roots: ['<rootDir>/src/', '<rootDir>/test/'],
-}
+};
 
-export default config
+export default config;

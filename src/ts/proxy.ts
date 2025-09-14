@@ -21,13 +21,13 @@ import {
   SuiObjectResponse,
   SuiTransactionBlockResponse,
   TryGetPastObjectParams,
-} from '@mysten/sui/client'
-import { SandboxClient } from './client'
-import { Signer } from '@mysten/sui/cryptography'
-import { Transaction } from '@mysten/sui/transactions'
+} from '@mysten/sui/client';
+import { SandboxClient } from './client';
+import { Signer } from '@mysten/sui/cryptography';
+import { Transaction } from '@mysten/sui/transactions';
 
 export function createSandboxClient(): { client: SuiClient; sandbox: SandboxClient } {
-  const sandbox = new SandboxClient()
+  const sandbox = new SandboxClient();
 
   const client = new Proxy({} as SuiClient, {
     get(_, prop) {
@@ -41,34 +41,34 @@ export function createSandboxClient(): { client: SuiClient; sandbox: SandboxClie
             totalBalance: String(sandbox.getBalance(input.owner, input?.coinType)),
             lockedBalance: {},
             coinType: input.coinType ?? '0x2::sui::SUI',
-          }
+          };
         },
 
         async executeTransactionBlock(input) {
-          const result = sandbox.executeTransactionBlock(input)
+          const result = sandbox.executeTransactionBlock(input);
 
-          return result
+          return result;
         },
 
         async dryRunTransactionBlock(input: DryRunTransactionBlockParams): Promise<DryRunTransactionBlockResponse> {
           const txBase64 =
             typeof input.transactionBlock === 'string'
               ? input.transactionBlock
-              : Buffer.from(input.transactionBlock).toString('base64')
+              : Buffer.from(input.transactionBlock).toString('base64');
 
-          const result = sandbox.dryRunTransaction(txBase64)
+          const result = sandbox.dryRunTransaction(txBase64);
 
-          return result
+          return result;
         },
 
         async getObject(input) {
-          return sandbox.getObject(input)
+          return sandbox.getObject(input);
         },
 
         async multiGetObjects(input: MultiGetObjectsParams): Promise<SuiObjectResponse[]> {
-          const objects = Promise.all(input.ids.map((id) => this.getObject!({ id })))
+          const objects = Promise.all(input.ids.map((id) => this.getObject!({ id })));
 
-          return objects
+          return objects;
         },
 
         async signAndExecuteTransaction({
@@ -76,91 +76,91 @@ export function createSandboxClient(): { client: SuiClient; sandbox: SandboxClie
           signer,
           ...input
         }: {
-          transaction: Uint8Array | Transaction
-          signer: Signer
+          transaction: Uint8Array | Transaction;
+          signer: Signer;
         } & Omit<
           ExecuteTransactionBlockParams,
           'transactionBlock' | 'signature'
         >): Promise<SuiTransactionBlockResponse> {
-          let transactionBytes
+          let transactionBytes;
 
           if (transaction instanceof Uint8Array) {
-            transactionBytes = transaction
+            transactionBytes = transaction;
           } else {
-            transaction.setSenderIfNotSet(signer.toSuiAddress())
-            transactionBytes = await transaction.build({ client: this as SuiClient })
+            transaction.setSenderIfNotSet(signer.toSuiAddress());
+            transactionBytes = await transaction.build({ client: this as SuiClient });
           }
 
-          const { signature, bytes } = await signer.signTransaction(transactionBytes)
+          const { signature, bytes } = await signer.signTransaction(transactionBytes);
 
           return this.executeTransactionBlock!({
             transactionBlock: bytes,
             signature,
             ...input,
-          })
+          });
         },
 
         async waitForTransaction({
           ...input
         }: {
-          signal?: AbortSignal
-          timeout?: number
-          pollInterval?: number
+          signal?: AbortSignal;
+          timeout?: number;
+          pollInterval?: number;
         } & Parameters<SuiClient['getTransactionBlock']>[0]): Promise<SuiTransactionBlockResponse> {
-          return sandbox.getTransaction(input.digest)
+          return sandbox.getTransaction(input.digest);
         },
 
         async getNormalizedMoveFunction(params: GetNormalizedMoveFunctionParams): Promise<SuiMoveNormalizedFunction> {
-          return sandbox.getNormalizedFunction(params)
+          return sandbox.getNormalizedFunction(params);
         },
 
         async getReferenceGasPrice(_: GetReferenceGasPriceParams = {}): Promise<bigint> {
-          return BigInt(sandbox.stateApi().getReferenceGasPrice())
+          return BigInt(sandbox.stateApi().getReferenceGasPrice());
         },
 
         async getCoins(params: GetCoinsParams): Promise<PaginatedCoins> {
-          const coins = sandbox.getCoins(params.owner, params.coinType)
+          const coins = sandbox.getCoins(params.owner, params.coinType);
 
           return {
             data: coins,
             hasNextPage: false,
-          }
+          };
         },
 
         async tryGetPastObject(input: TryGetPastObjectParams): Promise<ObjectRead> {
-          return sandbox.tryGetPastObject(input)
+          return sandbox.tryGetPastObject(input);
         },
 
         async getDynamicFields(input: GetDynamicFieldsParams): Promise<DynamicFieldPage> {
-          return sandbox.getDynamicFields(input)
+          return sandbox.getDynamicFields(input);
         },
 
         async getDynamicFieldObject(input: GetDynamicFieldObjectParams): Promise<SuiObjectResponse> {
-          return sandbox.getDynamicFieldObject(input)
+          return sandbox.getDynamicFieldObject(input);
         },
 
         async queryTransactionBlocks(params: QueryTransactionBlocksParams): Promise<PaginatedTransactionResponse> {
-          return sandbox.queryTransactionBlocks(params)
+          return sandbox.queryTransactionBlocks(params);
         },
 
         async getLatestCheckpointSequenceNumber(_: GetLatestCheckpointSequenceNumberParams = {}): Promise<string> {
-          return '10'
+          return '10';
         },
 
         async getTransactionBlock(input: GetTransactionBlockParams): Promise<SuiTransactionBlockResponse> {
-          return sandbox.getTransaction(input.digest)
+          return sandbox.getTransaction(input.digest);
         },
-      }
+      };
 
       if (prop in overrides) {
-        return overrides[prop as keyof SuiClient]
+        return overrides[prop as keyof SuiClient];
       }
 
       return (...args: any[]) => {
-        throw new Error(`Method ${String(prop)}(${JSON.stringify(args)}) not yet supported`)
-      }
+        throw new Error(`Method ${String(prop)}(${JSON.stringify(args)}) not yet supported`);
+      };
     },
-  })
+  });
 
-  return { client, sandbox }
+  return { client, sandbox };
 }
