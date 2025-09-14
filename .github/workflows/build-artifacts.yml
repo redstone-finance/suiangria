@@ -292,6 +292,9 @@ jobs:
             
             suiup install sui@testnet -y
             suiup doctor
+
+            ls -R /root
+
             /root/.local/bin/sui client -y
 
             yarn test
