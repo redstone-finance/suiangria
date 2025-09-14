@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "author": "RedStone Team <dev@redstone.finance>",
   "description": "Sui move environment in memory",
-  "repository": "git@github.com:napi-rs/package-template.git",
+  "repository": "git@github.com:redstone-finance/suiangria.git",
   "license": "MIT",
   "keywords": [
     "napi-rs",
