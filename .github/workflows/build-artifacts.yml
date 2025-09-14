@@ -278,9 +278,8 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: ${{ steps.docker.outputs.IMAGE }}
-          options: -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}
+          options: -v ${{ github.workspace }}:${{ github.workspace }} -v $HOME/.sui:/root/.sui -v $HOME/.local/bin:/root/.local/bin -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}
           run: |
-            ls -al ~/.local/bin/
             yarn test
   package-artifacts:
     name: Package Artifacts
