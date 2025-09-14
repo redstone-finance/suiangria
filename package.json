@@ -27,7 +27,8 @@
     "src/ts/**/*",
     "*.node",
     "index.js",
-    "npm-packages"
+    "npm-packages",
+    "tsconfig.json"
   ],
   "napi": {
     "binaryName": "suiangria",
