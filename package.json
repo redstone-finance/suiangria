@@ -17,7 +17,7 @@
   "files": [
     "src/ts",
     "index.d.ts",
-    "index.js"
+    "src/ts/**/*"
   ],
   "napi": {
     "binaryName": "suiangria",
