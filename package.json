@@ -13,6 +13,12 @@
     "node-addon",
     "node-addon-api"
   ],
+  "exports": {
+    ".": {
+      "import": "./src/ts/index.ts",
+      "types": "./src/ts/index.ts"
+    }
+  },
   "main": "src/ts/index.ts",
   "files": [
     "src/ts",
