@@ -2218,6 +2218,72 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@redstone-finance/suiangria-android-arm-eabi@npm:0.0.1, @redstone-finance/suiangria-android-arm-eabi@workspace:npm-packages/android-arm-eabi":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-android-arm-eabi@workspace:npm-packages/android-arm-eabi"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-android-arm64@npm:0.0.1, @redstone-finance/suiangria-android-arm64@workspace:npm-packages/android-arm64":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-android-arm64@workspace:npm-packages/android-arm64"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-darwin-arm64@npm:0.0.1, @redstone-finance/suiangria-darwin-arm64@workspace:npm-packages/darwin-arm64":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-darwin-arm64@workspace:npm-packages/darwin-arm64"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-darwin-x64@npm:0.0.1, @redstone-finance/suiangria-darwin-x64@workspace:npm-packages/darwin-x64":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-darwin-x64@workspace:npm-packages/darwin-x64"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-freebsd-x64@npm:0.0.1, @redstone-finance/suiangria-freebsd-x64@workspace:npm-packages/freebsd-x64":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-freebsd-x64@workspace:npm-packages/freebsd-x64"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-linux-arm64-musl@npm:0.0.1, @redstone-finance/suiangria-linux-arm64-musl@workspace:npm-packages/linux-arm64-musl":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-linux-arm64-musl@workspace:npm-packages/linux-arm64-musl"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-linux-x64-gnu@npm:0.0.1, @redstone-finance/suiangria-linux-x64-gnu@workspace:npm-packages/linux-x64-gnu":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-linux-x64-gnu@workspace:npm-packages/linux-x64-gnu"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-linux-x64-musl@npm:0.0.1, @redstone-finance/suiangria-linux-x64-musl@workspace:npm-packages/linux-x64-musl":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-linux-x64-musl@workspace:npm-packages/linux-x64-musl"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-win32-arm64-msvc@npm:0.0.1, @redstone-finance/suiangria-win32-arm64-msvc@workspace:npm-packages/win32-arm64-msvc":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-win32-arm64-msvc@workspace:npm-packages/win32-arm64-msvc"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-win32-ia32-msvc@npm:0.0.1, @redstone-finance/suiangria-win32-ia32-msvc@workspace:npm-packages/win32-ia32-msvc":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-win32-ia32-msvc@workspace:npm-packages/win32-ia32-msvc"
+  languageName: unknown
+  linkType: soft
+
+"@redstone-finance/suiangria-win32-x64-msvc@npm:0.0.1, @redstone-finance/suiangria-win32-x64-msvc@workspace:npm-packages/win32-x64-msvc":
+  version: 0.0.0-use.local
+  resolution: "@redstone-finance/suiangria-win32-x64-msvc@workspace:npm-packages/win32-x64-msvc"
+  languageName: unknown
+  linkType: soft
+
 "@redstone-finance/suiangria@workspace:.":
   version: 0.0.0-use.local
   resolution: "@redstone-finance/suiangria@workspace:."
@@ -2228,6 +2294,17 @@ __metadata:
     "@mysten/sui": "npm:^1.31.0"
     "@napi-rs/cli": "npm:^3.0.3"
     "@oxc-node/core": "npm:^0.0.32"
+    "@redstone-finance/suiangria-android-arm-eabi": "npm:0.0.1"
+    "@redstone-finance/suiangria-android-arm64": "npm:0.0.1"
+    "@redstone-finance/suiangria-darwin-arm64": "npm:0.0.1"
+    "@redstone-finance/suiangria-darwin-x64": "npm:0.0.1"
+    "@redstone-finance/suiangria-freebsd-x64": "npm:0.0.1"
+    "@redstone-finance/suiangria-linux-arm64-musl": "npm:0.0.1"
+    "@redstone-finance/suiangria-linux-x64-gnu": "npm:0.0.1"
+    "@redstone-finance/suiangria-linux-x64-musl": "npm:0.0.1"
+    "@redstone-finance/suiangria-win32-arm64-msvc": "npm:0.0.1"
+    "@redstone-finance/suiangria-win32-ia32-msvc": "npm:0.0.1"
+    "@redstone-finance/suiangria-win32-x64-msvc": "npm:0.0.1"
     "@taplo/cli": "npm:^0.7.0"
     "@tybys/wasm-util": "npm:^0.10.0"
     "@types/jest": "npm:^30.0.0"
@@ -2247,6 +2324,29 @@ __metadata:
     zod: "npm:^4.0.17"
   peerDependencies:
     "@mysten/sui": ^1.31.0
+  dependenciesMeta:
+    "@redstone-finance/suiangria-android-arm-eabi":
+      optional: true
+    "@redstone-finance/suiangria-android-arm64":
+      optional: true
+    "@redstone-finance/suiangria-darwin-arm64":
+      optional: true
+    "@redstone-finance/suiangria-darwin-x64":
+      optional: true
+    "@redstone-finance/suiangria-freebsd-x64":
+      optional: true
+    "@redstone-finance/suiangria-linux-arm64-musl":
+      optional: true
+    "@redstone-finance/suiangria-linux-x64-gnu":
+      optional: true
+    "@redstone-finance/suiangria-linux-x64-musl":
+      optional: true
+    "@redstone-finance/suiangria-win32-arm64-msvc":
+      optional: true
+    "@redstone-finance/suiangria-win32-ia32-msvc":
+      optional: true
+    "@redstone-finance/suiangria-win32-x64-msvc":
+      optional: true
   languageName: unknown
   linkType: soft
 
