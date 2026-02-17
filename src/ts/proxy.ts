@@ -163,9 +163,15 @@ function translateTxResponse(raw: any) {
       return {
         objectId: id,
         inputState: change.type === 'created' || change.type === 'published' ? 'DoesNotExist' : 'Exists',
-        outputState: change.type === 'deleted' ? 'DoesNotExist' : 'Exists',
+        outputState: change.type === 'deleted' ? 'DoesNotExist' : 'ObjectWrite',
+        outputVersion: change.version,
+        outputDigest: change.digest,
       };
     });
+
+  const gasChange = (raw.objectChanges ?? []).find(
+    (c: any) => c.objectType === '0x2::coin::Coin<0x2::sui::SUI>' && c.type === 'mutated',
+  );
 
   return {
     $kind: 'Transaction' as const,
@@ -176,6 +182,13 @@ function translateTxResponse(raw: any) {
         changedObjects,
         status: { success: true, error: null },
         gasUsed: raw.effects?.gasUsed,
+        gasObject: gasChange
+          ? {
+              objectId: gasChange.objectId,
+              outputVersion: gasChange.version,
+              outputDigest: gasChange.digest,
+            }
+          : undefined,
       },
       objectTypes,
       events: raw.events ?? [],
