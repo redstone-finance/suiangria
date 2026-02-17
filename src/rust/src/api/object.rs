@@ -14,6 +14,8 @@ use crate::{
     SharedState,
 };
 
+const UID_BCS_SIZE: usize = 32;
+
 #[napi]
 pub struct ObjectApi {
     sandbox: SharedState,
@@ -46,6 +48,39 @@ impl ObjectApi {
             })?;
 
         to_json!(response)
+    }
+
+    #[napi]
+    pub fn get_dynamic_field_value_bcs(
+        &self,
+        parent_id: String,
+        name_bcs: Buffer,
+    ) -> Result<Buffer> {
+        let parent = parse_object_id(&parent_id)?;
+        let sandbox = self.sandbox.borrow();
+        let name_bytes: &[u8] = name_bcs.as_ref();
+
+        let object = sandbox
+            .storage()
+            .objects_for(&Owner::ObjectOwner(parent.into()))
+            .find(|obj| {
+                obj.data.try_as_move().is_some_and(|m| {
+                    let contents = m.contents();
+                    contents.len() > UID_BCS_SIZE + name_bytes.len()
+                        && contents[UID_BCS_SIZE..UID_BCS_SIZE + name_bytes.len()] == *name_bytes
+                })
+            })
+            .ok_or_else(|| Error::from_reason("Dynamic field not found"))?;
+
+        let contents = object
+            .data
+            .try_as_move()
+            .ok_or_else(|| Error::from_reason("Not a Move object"))?
+            .contents();
+
+        let value_offset = UID_BCS_SIZE + name_bytes.len();
+
+        Ok(Buffer::from(&contents[value_offset..]))
     }
 
     #[napi]

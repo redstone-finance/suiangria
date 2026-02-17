@@ -39,7 +39,7 @@ impl SandboxBuilder {
         let storage = StorageExtension::new(InMemoryStorage::new(all_genesis_objects.collect()));
 
         let mut sandbox = MoveVMSandbox {
-            executor: executor(&config, false, None)?,
+            executor: executor(&config, false)?,
             config,
             storage,
             epoch: 0,

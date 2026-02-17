@@ -2,37 +2,37 @@
 [package]
 authors = ["RedStone Team <dev@redstone.finance>"]
 edition = "2021"
-name    = "suiangria"
+name = "suiangria"
 version = "0.0.1"
 
 metadata.cargo-machete = { ignored = ["napi-build"] }
 
 [lib]
 crate-type = ["cdylib"]
-name       = "suiangria"
-path       = "src/rust/src/lib.rs"
+name = "suiangria"
+path = "src/rust/src/lib.rs"
 
 [dependencies]
-napi        = { version = "3.0.0", features = ["async"] }
-napi-derive = "3.0.0"
+napi = { version = "3.8.3" }
+napi-derive = "3.5.2"
 
-move-binary-format = { git = "https://github.com/MystenLabs/sui.git", rev = "dcd0abda" }
-move-core-types    = { git = "https://github.com/MystenLabs/sui.git", rev = "dcd0abda" }
-sui-execution      = { git = "https://github.com/MystenLabs/sui.git", rev = "dcd0abda" }
-sui-framework      = { git = "https://github.com/MystenLabs/sui.git", rev = "dcd0abda" }
-sui-json-rpc-types = { git = "https://github.com/MystenLabs/sui.git", rev = "dcd0abda" }
-sui-types          = { git = "https://github.com/MystenLabs/sui.git", rev = "dcd0abda" }
+move-binary-format = { git = "https://github.com/MystenLabs/sui.git", tag = "testnet-v1.65.2" }
+move-core-types = { git = "https://github.com/MystenLabs/sui.git", tag = "testnet-v1.65.2" }
+sui-execution = { git = "https://github.com/MystenLabs/sui.git", tag = "testnet-v1.65.2" }
+sui-framework = { git = "https://github.com/MystenLabs/sui.git", tag = "testnet-v1.65.2" }
+sui-json-rpc-types = { git = "https://github.com/MystenLabs/sui.git", tag = "testnet-v1.65.2" }
+sui-types = { git = "https://github.com/MystenLabs/sui.git", tag = "testnet-v1.65.2" }
 
-anyhow     = "1.0"
-base64     = "0.21"
-bcs        = "0.1"
-flate2     = { version = "1.1.2" }
-serde      = { version = "1.0", features = ["derive"] }
+anyhow = "1.0"
+base64 = "0.22.1"
+bcs = "0.1"
+flate2 = { version = "1.1.9", features = ["zlib"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 [build-dependencies]
 napi-build = "2"
 
 [profile.release]
-lto   = true
+lto = true
 strip = "symbols"

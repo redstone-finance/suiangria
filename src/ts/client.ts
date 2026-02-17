@@ -1,20 +1,113 @@
-import {
-  DryRunTransactionBlockResponse,
-  GetDynamicFieldObjectParams,
-  GetDynamicFieldsParams,
-  GetNormalizedMoveFunctionParams,
-  ObjectRead,
-  PaginatedTransactionResponse,
-  QueryTransactionBlocksParams,
-  SuiObjectResponse,
-  SuiTransactionBlockResponse,
-  TryGetPastObjectParams,
-} from '@mysten/sui/client';
-import { SuiSandbox } from '../../index';
+import { SuiSandbox } from '../../index.js';
 
-export interface SandboxConfig {
-  initialBalance?: bigint;
-  enableLogging?: boolean;
+export interface ObjectChange {
+  type: 'created' | 'mutated' | 'deleted' | 'published' | 'transferred' | 'wrapped';
+  objectId: string;
+  objectType: string;
+  packageId: string;
+  version: string;
+  digest: string;
+  sender: string;
+}
+
+export interface TransactionEffects {
+  status: { status: 'success' | 'failure'; error?: string };
+  gasUsed: {
+    computationCost: string;
+    storageCost: string;
+    storageRebate: string;
+    nonRefundableStorageFee: string;
+  };
+}
+
+export interface SandboxTransactionResponse {
+  digest: string;
+  effects: TransactionEffects;
+  objectChanges?: ObjectChange[];
+  events?: unknown[];
+  errors?: string[];
+}
+
+export interface ObjectContent {
+  dataType: 'moveObject';
+  type: string;
+  fields: Record<string, unknown>;
+  hasPublicTransfer: boolean;
+}
+
+export interface ObjectBcs {
+  dataType: 'moveObject';
+  type: string;
+  bcsBytes: string;
+  version: number;
+}
+
+export interface SandboxObjectData {
+  objectId: string;
+  version: string;
+  digest: string;
+  type?: string;
+  owner?:
+    | { AddressOwner: string }
+    | { ObjectOwner: string }
+    | { Shared: { initial_shared_version: number } }
+    | 'Immutable';
+  content?: ObjectContent;
+  bcs?: ObjectBcs;
+}
+
+export interface SandboxObjectResponse {
+  data?: SandboxObjectData;
+  error?: { code: string; object_id?: string };
+}
+
+export interface DynamicFieldInfo {
+  name: { type: string; value: unknown };
+  bcsName: string;
+  type: string;
+  objectType: string;
+  objectId: string;
+  version: number;
+  digest: string;
+}
+
+export interface DynamicFieldPage {
+  data: DynamicFieldInfo[];
+  hasNextPage: boolean;
+  nextCursor?: string | null;
+}
+
+export type ObjectReadStatus =
+  | 'VersionFound'
+  | 'ObjectNotExists'
+  | 'VersionNotFound'
+  | 'VersionTooHigh'
+  | 'ObjectDeleted';
+
+export interface ObjectRead {
+  status: ObjectReadStatus;
+  details?: SandboxObjectData;
+}
+
+export interface DryRunEffects {
+  effects: TransactionEffects;
+  events: unknown[];
+  objectChanges: ObjectChange[];
+  input: unknown;
+}
+
+export interface PaginatedTransactionResponse {
+  data: SandboxTransactionResponse[];
+  hasNextPage: boolean;
+  nextCursor?: string | null;
+}
+
+export interface NormalizedMoveFunction {
+  visibility: string;
+  isEntry: boolean;
+  typeParameters: unknown[];
+  parameters: unknown[];
+  return: unknown[];
 }
 
 export class SandboxClient {
@@ -63,7 +156,7 @@ export class SandboxClient {
   executeTransactionBlock(input: {
     transactionBlock: Uint8Array | string;
     signature: string | string[];
-  }): SuiTransactionBlockResponse {
+  }): SandboxTransactionResponse {
     const txBytes =
       typeof input.transactionBlock === 'string'
         ? input.transactionBlock
@@ -71,30 +164,22 @@ export class SandboxClient {
 
     const signatures = Array.isArray(input.signature) ? input.signature : [input.signature];
 
-    const result = this.transactionApi().execute(txBytes, signatures);
-
-    return JSON.parse(result);
+    return JSON.parse(this.transactionApi().execute(txBytes, signatures));
   }
 
-  dryRunTransaction(transactionBlock: Uint8Array | string): DryRunTransactionBlockResponse {
+  dryRunTransaction(transactionBlock: Uint8Array | string): DryRunEffects {
     const txBytes =
       typeof transactionBlock === 'string' ? transactionBlock : Buffer.from(transactionBlock).toString('base64');
 
-    const result = this.transactionApi().dryRun(txBytes);
-
-    return JSON.parse(result);
+    return JSON.parse(this.transactionApi().dryRun(txBytes));
   }
 
-  getTransaction(digest: string): SuiTransactionBlockResponse {
-    const response = this.transactionApi().getResponse(digest);
-
-    return JSON.parse(response);
+  getTransaction(digest: string): SandboxTransactionResponse {
+    return JSON.parse(this.transactionApi().getResponse(digest));
   }
 
-  getObject(input: { id: string }) {
-    const result = this.objectApi().get(input.id);
-
-    return JSON.parse(result);
+  getObject(input: { id: string }): SandboxObjectResponse {
+    return JSON.parse(this.objectApi().get(input.id));
   }
 
   advanceClockByMillis(millis: number) {
@@ -113,7 +198,7 @@ export class SandboxClient {
     this.coinApi().mintSui(address, amount);
   }
 
-  publishPackage(modules: number[][], dependencies: string[], sender: string): SuiTransactionBlockResponse {
+  publishPackage(modules: number[][], dependencies: string[], sender: string): SandboxTransactionResponse {
     return JSON.parse(this.packageApi().publish(modules, dependencies, sender));
   }
 
@@ -133,23 +218,27 @@ export class SandboxClient {
     this.behaviourApi().enableSignatureChecks();
   }
 
-  getNormalizedFunction(params: GetNormalizedMoveFunctionParams) {
+  getNormalizedFunction(params: { package: string; module: string; function: string }): NormalizedMoveFunction {
     return JSON.parse(this.packageApi().getNormalizedMoveFunction(params.package, params.module, params.function));
   }
 
-  tryGetPastObject(input: TryGetPastObjectParams): ObjectRead {
+  tryGetPastObject(input: { id: string; version: number }): ObjectRead {
     return JSON.parse(this.objectApi().getPast(JSON.stringify(input)));
   }
 
-  getDynamicFields(params: GetDynamicFieldsParams) {
+  getDynamicFields(params: { parentId: string; cursor?: string | null; limit?: number }): DynamicFieldPage {
     return JSON.parse(this.objectApi().getDynamicFields(JSON.stringify(params)));
   }
 
-  getDynamicFieldObject(input: GetDynamicFieldObjectParams): Promise<SuiObjectResponse> {
+  getDynamicFieldObject(input: { parentId: string; name: { type: string; value: unknown } }): SandboxObjectResponse {
     return JSON.parse(this.objectApi().getDynamicFieldObject(JSON.stringify(input)));
   }
 
-  queryTransactionBlocks(params: QueryTransactionBlocksParams): Promise<PaginatedTransactionResponse> {
+  queryTransactionBlocks(params: {
+    filter?: Record<string, unknown>;
+    cursor?: string | null;
+    limit?: number;
+  }): PaginatedTransactionResponse {
     return JSON.parse(this.transactionApi().queryBlocks(JSON.stringify(params)));
   }
 

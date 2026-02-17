@@ -33,7 +33,7 @@ impl AuthExtension {
             epoch,
             &Default::default(),
             Arc::new(VerifiedDigestCache::new_empty()),
-            None,
+            vec![],
         )?;
 
         Ok(())

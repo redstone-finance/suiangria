@@ -1,11 +1,11 @@
-import { SuiClient } from '@mysten/sui/client';
 import { Keypair } from '@mysten/sui/cryptography';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { Transaction } from '@mysten/sui/transactions';
 import { MIST_PER_SUI } from '@mysten/sui/utils';
 
 export class AdminClient {
   constructor(
-    private readonly client: SuiClient,
+    private readonly client: SuiGrpcClient,
     private readonly packageId: string,
     private readonly adminCap: string,
     private readonly keypair: Keypair,
@@ -23,7 +23,6 @@ export class AdminClient {
 
     return await this.client.signAndExecuteTransaction({
       transaction: tx,
-      options: { showEffects: true, showEvents: true },
       signer: this.keypair,
     });
   }
