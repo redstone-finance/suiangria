@@ -281,6 +281,8 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
     },
 
     async executeTransaction(args: any) {
+
+      console.dir(args, { depth: 5 });
       const txBytes = args.transaction?.bcs?.value ?? args.transaction;
       const sigs = (args.signatures ?? []).map((s: any) => s?.bcs?.value ?? s);
 
