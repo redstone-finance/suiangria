@@ -118,7 +118,7 @@ function translateObjectResponse(raw: any) {
       objectId: data.objectId,
       version: data.version,
       digest: data.digest,
-      type: data.content?.type,
+      type: data.content?.type ?? data.type,
       owner: translateOwner(data.owner),
       json: data.content?.fields ? flattenMoveJson(data.content.fields) : undefined,
       ...(data.bcs?.bcsBytes && {
