@@ -298,6 +298,12 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
 
       return executeTx(txBase64, signatures);
     },
+
+    async waitForTransaction({ digest }: { digest: string }) {
+      const raw = sandbox.getTransaction(digest);
+
+      return translateTxResponse(raw);
+    },
   };
 
   const executeTx = (txBase64: string, sigs: string[]) => {
