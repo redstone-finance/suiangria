@@ -280,16 +280,10 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
       throw new Error('listOwnedObjects not yet supported in sandbox');
     },
 
-    async executeTransaction(args: any) {
+    async executeTransaction({ transaction, signatures }: { transaction: Uint8Array; signatures: string[] }) {
+      const txBase64 = Buffer.from(transaction).toString('base64');
 
-      console.dir(args, { depth: 5 });
-      const txBytes = args.transaction?.bcs?.value ?? args.transaction;
-      const sigs = (args.signatures ?? []).map((s: any) => s?.bcs?.value ?? s);
-
-      const txBase64 = Buffer.from(txBytes).toString('base64');
-      const sigStrings = sigs.map((s: Uint8Array) => Buffer.from(s).toString('base64'));
-
-      return executeTx(txBase64, sigStrings);
+      return executeTx(txBase64, signatures);
     },
   };
 
