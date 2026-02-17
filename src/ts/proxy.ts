@@ -225,8 +225,11 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
       return { dynamicFields: raw.data, cursor: raw.nextCursor ?? undefined };
     },
 
-    async getDynamicField({ parentId, name }: { parentId: string; name: { type: string; bcs: Uint8Array } }) {
-      const valueBcs = sandbox.objectApi().getDynamicFieldValueBcs(parentId, Buffer.from(name.bcs));
+    async getDynamicField({ parentId, name }: any) {
+      console.dir({ parentId, name }, { depth: 5 });
+      const nameBytes = name.bcs?.value ?? name.bcs;
+      const valueBcs = sandbox.objectApi().getDynamicFieldValueBcs(parentId, Buffer.from(nameBytes));
+      console.dir({ valueBcs }, { depth: 5 });
 
       return {
         dynamicField: {
