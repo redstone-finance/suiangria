@@ -3,6 +3,112 @@ import { Signer } from '@mysten/sui/cryptography';
 import { Transaction } from '@mysten/sui/transactions';
 import { SandboxClient } from './client';
 
+function translateSignatureBody(param: any): any {
+  if (typeof param === 'string') {
+    const primitives: Record<string, string> = {
+      Bool: 'bool',
+      U8: 'u8',
+      U16: 'u16',
+      U32: 'u32',
+      U64: 'u64',
+      U128: 'u128',
+      U256: 'u256',
+      Address: 'address',
+    };
+
+    return { $kind: primitives[param] ?? 'unknown' };
+  }
+
+  if (param.Vector) {
+    return { $kind: 'vector', vector: translateSignatureBody(param.Vector) };
+  }
+
+  if (param.Struct) {
+    const { address, module, name, typeArguments } = param.Struct;
+
+    return {
+      $kind: 'datatype',
+      datatype: {
+        typeName: `${address}::${module}::${name}`,
+        typeParameters: (typeArguments ?? []).map(translateSignatureBody),
+      },
+    };
+  }
+
+  if (param.TypeParameter !== undefined) {
+    return { $kind: 'typeParameter', index: param.TypeParameter };
+  }
+
+  return { $kind: 'unknown' };
+}
+
+function translateParameter(param: any): any {
+  if (param.Reference) {
+    return { reference: 'immutable', body: translateSignatureBody(param.Reference) };
+  }
+
+  if (param.MutableReference) {
+    return { reference: 'mutable', body: translateSignatureBody(param.MutableReference) };
+  }
+
+  return { reference: null, body: translateSignatureBody(param) };
+}
+
+function translateMoveFunction(raw: any, packageId: string, moduleName: string, name: string) {
+  return {
+    function: {
+      packageId,
+      moduleName,
+      name,
+      visibility: raw.visibility?.toLowerCase() ?? 'private',
+      isEntry: raw.isEntry ?? false,
+      typeParameters: (raw.typeParameters ?? []).map((tp: any) => ({
+        constraints: tp.abilities ?? [],
+        isPhantom: tp.isPhantom ?? false,
+      })),
+      parameters: (raw.parameters ?? []).map(translateParameter),
+      returns: (raw.return ?? []).map(translateParameter),
+    },
+  };
+}
+
+function flattenMoveJson(value: any): any {
+  if (value === null || value === undefined || typeof value !== 'object') return value;
+
+  if (Array.isArray(value)) return value.map(flattenMoveJson);
+
+  if (typeof value.type === 'string' && value.fields && typeof value.fields === 'object') {
+    return flattenMoveJson(value.fields);
+  }
+
+  return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, flattenMoveJson(v)]));
+}
+
+function translateOwner(owner: any) {
+  if (!owner) return { $kind: 'Unknown' };
+
+  if (typeof owner === 'string' && owner === 'Immutable') {
+    return { $kind: 'Immutable', Immutable: true };
+  }
+
+  if (owner.AddressOwner) {
+    return { $kind: 'AddressOwner', AddressOwner: owner.AddressOwner };
+  }
+
+  if (owner.ObjectOwner) {
+    return { $kind: 'ObjectOwner', ObjectOwner: owner.ObjectOwner };
+  }
+
+  if (owner.Shared) {
+    return {
+      $kind: 'Shared',
+      Shared: { initialSharedVersion: String(owner.Shared.initial_shared_version) },
+    };
+  }
+
+  return { $kind: 'Unknown' };
+}
+
 function translateObjectResponse(raw: any) {
   const data = raw?.data;
   if (!data) return { object: null };
@@ -13,7 +119,8 @@ function translateObjectResponse(raw: any) {
       version: data.version,
       digest: data.digest,
       type: data.content?.type,
-      json: data.content?.fields,
+      owner: translateOwner(data.owner),
+      json: data.content?.fields ? flattenMoveJson(data.content.fields) : undefined,
       ...(data.bcs?.bcsBytes && {
         bcs: Buffer.from(data.bcs.bcsBytes, 'base64'),
       }),
@@ -28,7 +135,13 @@ function translateTxResponse(raw: any) {
     return {
       $kind: 'FailedTransaction' as const,
       digest: raw.digest,
-      FailedTransaction: raw.effects?.status?.error ?? raw.errors?.join('; ') ?? 'Unknown error',
+      FailedTransaction: {
+        digest: raw.digest,
+        status: {
+          success: false,
+          error: { message: raw.effects?.status?.error ?? raw.errors?.join('; ') ?? 'Unknown error' },
+        },
+      },
     };
   }
 
@@ -52,9 +165,10 @@ function translateTxResponse(raw: any) {
     $kind: 'Transaction' as const,
     digest: raw.digest,
     Transaction: {
+      digest: raw.digest,
       effects: {
         changedObjects,
-        status: raw.effects?.status,
+        status: { success: true, error: null },
         gasUsed: raw.effects?.gasUsed,
       },
       objectTypes,
@@ -63,11 +177,20 @@ function translateTxResponse(raw: any) {
   };
 }
 
-
 export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: SandboxClient } {
   const sandbox = new SandboxClient();
 
   const core = {
+    async getObjects({ objectIds }: { objectIds: string[]; include?: Record<string, boolean> }) {
+      return {
+        objects: objectIds.map((id) => {
+          const raw = sandbox.getObject({ id });
+
+          return translateObjectResponse(raw).object;
+        }),
+      };
+    },
+
     async getObject({ objectId }: { objectId: string; include?: { json?: boolean; bcs?: boolean } }) {
       const raw = sandbox.getObject({ id: objectId });
 
@@ -80,13 +203,7 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
       return { dynamicFields: raw.data, cursor: raw.nextCursor ?? undefined };
     },
 
-    async getDynamicField({
-      parentId,
-      name,
-    }: {
-      parentId: string;
-      name: { type: string; bcs: Uint8Array };
-    }) {
+    async getDynamicField({ parentId, name }: { parentId: string; name: { type: string; bcs: Uint8Array } }) {
       const valueBcs = sandbox.objectApi().getDynamicFieldValueBcs(parentId, Buffer.from(name.bcs));
 
       return {
@@ -98,11 +215,53 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
       };
     },
 
+    async getMoveFunction({ packageId, moduleName, name }: { packageId: string; moduleName: string; name: string }) {
+      const raw = sandbox.getNormalizedFunction({ package: packageId, module: moduleName, function: name });
+
+      return translateMoveFunction(raw, packageId, moduleName, name);
+    },
+
+    async getChainIdentifier() {
+      return { chainIdentifier: '11111111111111111111111111111111' };
+    },
+
+    async listCoins({ owner, coinType }: { owner: string; coinType?: string }) {
+      const raw = sandbox.getCoins(owner, coinType ?? '0x2::sui::SUI');
+      const coins = Array.isArray(raw) ? raw : (raw.data ?? []);
+
+      return {
+        objects: coins.map((c: any) => ({
+          objectId: c.coinObjectId,
+          version: c.version,
+          digest: c.digest,
+          owner: { $kind: 'AddressOwner', AddressOwner: owner },
+          type: `0x2::coin::Coin<${c.coinType}>`,
+          balance: c.balance,
+        })),
+        hasNextPage: false,
+        cursor: null,
+      };
+    },
+
     async getCurrentSystemState() {
       return {
         systemState: {
           epoch: '0',
           referenceGasPrice: String(sandbox.stateApi().getReferenceGasPrice()),
+        },
+      };
+    },
+
+    async simulateTransaction({ transaction }: { transaction: Uint8Array }) {
+      const txBase64 = Buffer.from(transaction).toString('base64');
+      const raw = sandbox.dryRunTransaction(txBase64);
+
+      return {
+        $kind: 'Transaction' as const,
+        Transaction: {
+          effects: {
+            gasUsed: raw.effects?.gasUsed,
+          },
         },
       };
     },

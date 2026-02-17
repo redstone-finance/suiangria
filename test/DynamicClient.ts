@@ -20,7 +20,7 @@ const DynamicValue = z.object({
 });
 
 const DynamicValueBcs = bcs.struct('DynamicValue', {
-  value: bcs.u64(),
+  value: bcs.u8(),
 });
 
 export class DynamicClient {
