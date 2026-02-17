@@ -191,7 +191,10 @@ function translateTxResponse(raw: any) {
           : undefined,
       },
       objectTypes,
-      events: raw.events ?? [],
+      events: (raw.events ?? []).map((e: any) => ({
+        ...e,
+        eventType: e.type,
+      })),
     },
   };
 }
