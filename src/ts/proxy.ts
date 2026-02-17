@@ -2,6 +2,7 @@ import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { Signer } from '@mysten/sui/cryptography';
 import { Transaction } from '@mysten/sui/transactions';
 import { SandboxClient } from './client';
+import { bcs } from '@mysten/bcs';
 
 function translateSignatureBody(param: any): any {
   if (typeof param === 'string') {
@@ -226,10 +227,15 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
     },
 
     async getDynamicField({ parentId, name }: any) {
-      console.dir({ parentId, name }, { depth: 5 });
-      const nameBytes = name.bcs?.value ?? name.bcs;
-      const valueBcs = sandbox.objectApi().getDynamicFieldValueBcs(parentId, Buffer.from(nameBytes));
-      console.dir({ valueBcs }, { depth: 5 });
+      let nameBytes: Buffer;
+
+      if (name.bcs) {
+        nameBytes = Buffer.from(name.bcs?.value ?? name.bcs);
+      } else {
+        nameBytes = Buffer.from(bcs.vector(bcs.u8()).serialize(name.value).toBytes());
+      }
+
+      const valueBcs = sandbox.objectApi().getDynamicFieldValueBcs(parentId, nameBytes);
 
       return {
         dynamicField: {
