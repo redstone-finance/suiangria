@@ -147,19 +147,17 @@ function translateTxResponse(raw: any) {
 
   const objectTypes: Record<string, string> = {};
   const changedObjects = (raw.objectChanges ?? [])
-    .map((change: any) => ({
-      ...change,
-      objectId: change.objectId ?? change.packageId,
-    }))
-    .filter((c: any) => c.objectId)
+    .filter((c: any) => c.objectId || c.packageId)
     .map((change: any) => {
+      const id = change.objectId ?? change.packageId;
+
       if (change.objectType) {
-        objectTypes[change.objectId] = change.objectType;
+        objectTypes[id] = change.objectType;
       }
 
       return {
-        objectId: change.objectId,
-        inputState: change.type === 'created' ? 'DoesNotExist' : 'Exists',
+        objectId: id,
+        inputState: change.type === 'created' || change.type === 'published' ? 'DoesNotExist' : 'Exists',
         outputState: change.type === 'deleted' ? 'DoesNotExist' : 'Exists',
       };
     });
