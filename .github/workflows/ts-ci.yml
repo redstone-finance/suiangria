@@ -51,7 +51,9 @@ jobs:
 
       - name: Install sui cli
         run: |
-          brew install sui
+          curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+          suiup install sui@testnet-1.56.1
+          suiup default set sui@testnet-1.56.1
           sui client -y
 
       - name: Run tests
