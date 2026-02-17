@@ -338,7 +338,9 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
     },
 
     async getReferenceGasPrice() {
-      return BigInt(sandbox.stateApi().getReferenceGasPrice());
+      return {
+        referenceGasPrice: String(sandbox.stateApi().getReferenceGasPrice()),
+      };
     },
 
     async dryRunTransaction({ transactionBlock }: { transactionBlock: Uint8Array | string }) {
