@@ -307,6 +307,12 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
 
       return translateTxResponse(raw);
     },
+
+    async getTransaction({ digest }: { digest: string }) {
+      const raw = sandbox.getTransaction(digest);
+
+      return translateTxResponse(raw);
+    },
   };
 
   const executeTx = (txBase64: string, sigs: string[]) => {
@@ -356,6 +362,12 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
         coinType: coinType ?? '0x2::sui::SUI',
         coinObjectCount: 1,
       };
+    },
+
+    async getTransaction({ digest }: { digest: string }) {
+      const raw = sandbox.getTransaction(digest);
+
+      return translateTxResponse(raw);
     },
 
     async getReferenceGasPrice() {
