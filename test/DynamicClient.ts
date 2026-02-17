@@ -5,18 +5,10 @@ import { Transaction } from '@mysten/sui/transactions';
 import { MIST_PER_SUI } from '@mysten/sui/utils';
 import z from 'zod';
 
-const ValuesContent = z.object({
-  id: z.string(),
-});
-
 export const DynamicContents = z.object({
   values: z.object({
-    id: ValuesContent,
+    id: z.string(),
   }),
-});
-
-const DynamicValue = z.object({
-  value: z.number(),
 });
 
 const DynamicValueBcs = bcs.struct('DynamicValue', {
@@ -73,7 +65,7 @@ export class DynamicClient {
     const struct = await this.readStruct(objectId);
 
     const { dynamicField } = await this.client.core.getDynamicField({
-      parentId: struct.values.id.id,
+      parentId: struct.values.id,
       name: { type: 'u8', bcs: bcs.u8().serialize(field).toBytes() },
     });
 

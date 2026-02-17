@@ -81,6 +81,11 @@ function flattenMoveJson(value: any): any {
     return flattenMoveJson(value.fields);
   }
 
+  const keys = Object.keys(value);
+  if (keys.length === 1 && keys[0] === 'id' && typeof value.id === 'string') {
+    return value.id;
+  }
+
   return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, flattenMoveJson(v)]));
 }
 
