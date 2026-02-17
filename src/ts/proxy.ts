@@ -146,8 +146,11 @@ function translateTxResponse(raw: any) {
   }
 
   const objectTypes: Record<string, string> = {};
-
   const changedObjects = (raw.objectChanges ?? [])
+    .map((change: any) => ({
+      ...change,
+      objectId: change.objectId ?? change.packageId,
+    }))
     .filter((c: any) => c.objectId)
     .map((change: any) => {
       if (change.objectType) {
@@ -275,10 +278,10 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
     },
 
     async executeTransaction({ transaction, signatures }: { transaction: Uint8Array; signatures: Uint8Array[] }) {
-        const txBase64 = Buffer.from(transaction).toString('base64');
-        const sigs = signatures.map((s) => Buffer.from(s).toString('base64'));
+      const txBase64 = Buffer.from(transaction).toString('base64');
+      const sigs = signatures.map((s) => Buffer.from(s).toString('base64'));
 
-        return executeTx(txBase64, sigs);
+      return executeTx(txBase64, sigs);
     },
   };
 
