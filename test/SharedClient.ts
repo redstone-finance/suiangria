@@ -1,25 +1,17 @@
-import { bcs } from '@mysten/bcs';
-import { SuiClient } from '@mysten/sui/client';
+import { bcs } from '@mysten/sui/bcs';
 import { Keypair } from '@mysten/sui/cryptography';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { Transaction } from '@mysten/sui/transactions';
 import { MIST_PER_SUI } from '@mysten/sui/utils';
 import z from 'zod';
 
-function flattenFields<T>(data: { fields: T }): T {
-  return data.fields;
-}
-
-export const SharedContent = z
-  .object({
-    fields: z.object({
-      value: z.number(),
-    }),
-  })
-  .transform(flattenFields);
+export const SharedContent = z.object({
+  value: z.number(),
+});
 
 export class SharedClient {
   constructor(
-    private readonly client: SuiClient,
+    private readonly client: SuiGrpcClient,
     private readonly packageId: string,
     private readonly keypair: Keypair,
   ) {}
@@ -36,18 +28,21 @@ export class SharedClient {
 
     const res = await this.client.signAndExecuteTransaction({
       transaction: tx,
-      options: { showEffects: true, showEvents: true },
       signer: this.keypair,
+      include: { effects: true, objectChanges: true, objectTypes: true },
     });
 
-    if (res.errors) {
-      throw new AggregateError(res.errors);
+    if (res.$kind === 'FailedTransaction') {
+      throw new Error(`Transaction failed: ${res.FailedTransaction}`);
     }
 
-    const test = res.objectChanges!.find((change) => change.type === 'created' && change.objectType.includes('Test'));
+    const created = res.Transaction.effects.changedObjects.find(
+      (change) =>
+        change.inputState === 'DoesNotExist' && res.Transaction.objectTypes[change.objectId]?.includes('Test'),
+    );
 
-    return test?.type === 'created'
-      ? test.objectId
+    return created?.objectId
+      ? created.objectId
       : (() => {
           throw new Error('Not found shared object');
         })();
@@ -63,16 +58,25 @@ export class SharedClient {
 
     tx.setGasBudget(10 * Number(MIST_PER_SUI));
 
-    return await this.client.signAndExecuteTransaction({
+    const res = await this.client.signAndExecuteTransaction({
       transaction: tx,
-      options: { showEffects: true, showEvents: true },
       signer: this.keypair,
+      include: { effects: true },
     });
+
+    if (res.$kind === 'FailedTransaction') {
+      throw new Error(`Transaction failed: ${res.FailedTransaction}`);
+    }
+
+    return res;
   }
 
   async readValue(shared: string) {
-    let sharedData = await this.client.getObject({ id: shared, options: { showContent: true } });
+    const { object } = await this.client.core.getObject({
+      objectId: shared,
+      include: { json: true },
+    });
 
-    return SharedContent.parse(sharedData.data?.content).value;
+    return SharedContent.parse(object.json).value;
   }
 }

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use sui_json_rpc_types::{SuiTransactionBlockResponseOptions, TransactionFilter};
 use sui_types::{
     base_types::{ObjectID, SequenceNumber},
     dynamic_field::DynamicFieldName,
@@ -24,11 +23,4 @@ pub struct GetDynamicFieldsParams {
 pub struct GetDynamicFieldObjectParams {
     pub parent_id: ObjectID,
     pub name: DynamicFieldName,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct QueryTransactionBlocksParams {
-    pub filter: TransactionFilter,
-    pub options: SuiTransactionBlockResponseOptions,
 }

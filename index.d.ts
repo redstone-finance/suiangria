@@ -22,6 +22,7 @@ export declare class CoinApi {
 export declare class ObjectApi {
   create(object: string): void;
   get(objectId: string): string;
+  getDynamicFieldValueBcs(parentId: string, nameBcs: Buffer): Buffer;
   getPast(input: string): string;
   getDynamicFields(input: string): string;
   getDynamicFieldObject(input: string): string;

@@ -71,17 +71,19 @@
     "postinstall": "npm run build:ts"
   },
   "dependencies": {
-    "@mysten/bcs": "^1.6.2"
+    "@mysten/bcs": "^2.0.2"
   },
   "peerDependencies": {
-    "@mysten/sui": "^1.31.0"
+    "@mysten/sui": "^2.4.0"
   },
   "devDependencies": {
     "@emnapi/core": "^1.4.5",
     "@emnapi/runtime": "^1.4.5",
-    "@mysten/sui": "^1.31.0",
+    "@mysten/sui": "^2.4.0",
     "@napi-rs/cli": "^3.0.3",
     "@oxc-node/core": "^0.0.32",
+    "@swc/core": "^1.15.11",
+    "@swc/jest": "^0.2.39",
     "@taplo/cli": "^0.7.0",
     "@tybys/wasm-util": "^0.10.0",
     "@types/jest": "^30.0.0",

@@ -1,12 +1,12 @@
-import { createSandboxClient, publishPackage, SandboxClient } from '../src/ts/index';
+import { createSandboxGrpcClient, publishPackage, SandboxClient } from '../src/ts/index';
 import { Secp256k1Keypair } from '@mysten/sui/keypairs/secp256k1';
 import { Transaction } from '@mysten/sui/transactions';
 import { MIST_PER_SUI, SUI_CLOCK_OBJECT_ID } from '@mysten/sui/utils';
 import { AdminClient } from './AdminClient';
 import { SharedClient } from './SharedClient';
 import { ClockClient } from './ClockClient';
-import { SuiTransactionBlockResponse } from '@mysten/sui/client';
 import { DynamicClient } from './DynamicClient';
+import { SuiClientTypes } from '@mysten/sui/client';
 
 const INITIAL_BALANCE = 1000000000000000n;
 const GAS_BUDGET = 1000000000000000n;
@@ -14,11 +14,11 @@ const GAS_PRICE = 100;
 
 describe('SuiSandboxClient', () => {
   it('Estimate gas for tx', async () => {
-    const { client, sandbox } = createSandboxClient();
+    const { client, sandbox } = createSandboxGrpcClient();
     const sender = Secp256k1Keypair.generate();
     const recipient = Secp256k1Keypair.generate();
 
-    sandbox.mintSui(sender.toSuiAddress(), Number(10n * MIST_PER_SUI));
+    sandbox.coinApi().mintSui(sender.toSuiAddress(), Number(10n * MIST_PER_SUI));
     const tx = new Transaction();
 
     const [coin1, coin2] = tx.splitCoins(tx.gas, [tx.pure.u64(100_000_000), tx.pure.u64(100_000_000)]);
@@ -30,7 +30,7 @@ describe('SuiSandboxClient', () => {
       transaction: tx,
     });
 
-    checkTxSuccedded(result);
+    expectTxSucceeded(result);
   });
 
   const publishClockPackage = () => {
@@ -51,7 +51,8 @@ describe('SuiSandboxClient', () => {
     const adminCap = publishResult.objectChanges!.find(
       (change) => change.type === 'created' && change.objectType.includes('AdminCap'),
     );
-    const adminCapId = adminCap?.type === 'created' ? adminCap.objectId : '';
+
+    const adminCapId = adminCap?.objectId ?? '';
 
     return { client, sandbox, packageId, adminCapId, sender, publishResult };
   };
@@ -94,30 +95,26 @@ describe('SuiSandboxClient', () => {
       expect(sandbox.getBalance(sender.toSuiAddress())).toBe(Number(INITIAL_BALANCE) * 3);
       expect(sandbox.getBalance(sender.toSuiAddress(), '0x2::sui::SUI')).toBe(Number(INITIAL_BALANCE) * 3);
 
-      sandbox.advanceClockByMillis(100);
+      sandbox.clockApi().advanceByMillis(100);
 
       const tx = createTransferTransaction(sender, recipient, coinIds);
-      const transactionData = await tx.build({ client });
-      const { signature } = await sender.signTransaction(transactionData);
+      const result = await client.signAndExecuteTransaction({
+        signer: sender,
+        transaction: tx,
+      });
 
-      const response = checkTxSuccedded(
-        await client.executeTransactionBlock({
-          transactionBlock: transactionData,
-          signature,
-        }),
-      );
-
-      expect(response.digest).toBeDefined();
+      const txRes = expectTxSucceeded(result);
+      expect(txRes.digest).toBeDefined();
       expect(sandbox.getBalance(recipient.toSuiAddress())).toBe(Number(INITIAL_BALANCE) * 2);
     });
 
     it('executes transaction using signAndExecuteTransaction', async () => {
       const { client, sandbox, sender, recipient, coinIds } = setupTransferTest();
 
-      sandbox.advanceClockByMillis(100);
+      sandbox.clockApi().advanceByMillis(100);
 
       const tx = createTransferTransaction(sender, recipient, coinIds);
-      checkTxSuccedded(await client.signAndExecuteTransaction({ transaction: tx, signer: sender }));
+      expectTxSucceeded(await client.signAndExecuteTransaction({ transaction: tx, signer: sender }));
 
       expect(sandbox.getBalance(recipient.toSuiAddress())).toBe(Number(INITIAL_BALANCE) * 2);
     });
@@ -126,7 +123,7 @@ describe('SuiSandboxClient', () => {
       const { client, sandbox, sender, recipient, coinIds } = setupTransferTest();
 
       const tx = createTransferTransaction(sender, recipient, coinIds);
-      checkTxFailed(
+      expectTxFailed(
         await client.signAndExecuteTransaction({
           transaction: tx,
           signer: recipient,
@@ -142,7 +139,7 @@ describe('SuiSandboxClient', () => {
       sandbox.disableSigChecks();
 
       const tx = createTransferTransaction(sender, recipient, coinIds);
-      checkTxSuccedded(
+      expectTxSucceeded(
         await client.signAndExecuteTransaction({
           transaction: tx,
           signer: recipient,
@@ -155,28 +152,28 @@ describe('SuiSandboxClient', () => {
     it('reject valid transaction when set to do this', async () => {
       const { client, sandbox, sender, recipient, coinIds } = setupTransferTest();
 
-      sandbox.advanceClockByMillis(100);
+      sandbox.clockApi().advanceByMillis(100);
 
       const tx = createTransferTransaction(sender, recipient, coinIds);
       sandbox.behaviourApi().setRejectNextTransaction('i dont like you');
-      const response = await client.signAndExecuteTransaction({ transaction: tx, signer: sender });
+      const result = await client.signAndExecuteTransaction({ transaction: tx, signer: sender });
 
-      expect(response.errors![0]).toContain('i dont like you');
+      expectTxFailed(result);
       expect(sandbox.getBalance(recipient.toSuiAddress())).toBe(0);
     });
   });
 
   describe('clock operations', () => {
-    it('advances clock time', () => {
-      const sandbox = new SandboxClient();
+    it('advances clock time', async () => {
+      const { sandbox } = createSandboxGrpcClient();
 
       const initialClock = sandbox.getObject({ id: SUI_CLOCK_OBJECT_ID });
-      expect(initialClock.data.content.fields.timestamp_ms).toBe('0');
+      expect(initialClock.data!.content!.fields.timestamp_ms).toBe('0');
 
       sandbox.clockApi().advanceByMillis(1000);
 
       const updatedClock = sandbox.getObject({ id: SUI_CLOCK_OBJECT_ID });
-      expect(updatedClock.data.content.fields.timestamp_ms).toBe('1000');
+      expect(updatedClock.data!.content!.fields.timestamp_ms).toBe('1000');
     });
   });
 
@@ -186,26 +183,24 @@ describe('SuiSandboxClient', () => {
 
       const tx = createTransferTransaction(sender, recipient, coinIds);
 
-      const successfulResponse = await client.signAndExecuteTransaction({
+      const successResult = await client.signAndExecuteTransaction({
         transaction: tx,
         signer: sender,
       });
-      const successfulResult = await client.waitForTransaction({
-        digest: successfulResponse.digest,
-      });
-      checkTxSuccedded(successfulResponse);
-      checkTxSuccedded(successfulResult);
+      const success = expectTxSucceeded(successResult);
 
-      const failedResponse = await client.signAndExecuteTransaction({
+      const successLookup = await client.waitForTransaction({ digest: success.digest });
+      expectTxSucceeded(successLookup);
+
+      const failResult = await client.signAndExecuteTransaction({
         transaction: tx,
         signer: recipient,
       });
-      const failedResult = await client.waitForTransaction({
-        digest: failedResponse.digest,
-      });
+      const fail = expectTxFailed(failResult);
+      const failLookup = await client.waitForTransaction({ digest: fail.digest });
 
-      checkTxFailed(failedResponse);
-      checkTxFailed(failedResult);
+      expectTxFailed(failResult);
+      expectTxFailed(failLookup);
     });
   });
 
@@ -219,7 +214,7 @@ describe('SuiSandboxClient', () => {
       const { client, packageId, adminCapId, sender } = publishAdminPackage();
       const adminClient = new AdminClient(client, packageId, adminCapId, sender);
 
-      checkTxSuccedded(await adminClient.callFunction());
+      expectTxSucceeded(await adminClient.callFunction());
     });
 
     it('prevents non-admin from calling protected function', async () => {
@@ -230,7 +225,7 @@ describe('SuiSandboxClient', () => {
 
       const adminClient = new AdminClient(client, packageId, adminCapId, unauthorizedSigner);
 
-      checkTxFailed(await adminClient.callFunction());
+      expectTxFailed(await adminClient.callFunction());
     });
 
     it('bypasses admin check when signature verification disabled', async () => {
@@ -243,7 +238,7 @@ describe('SuiSandboxClient', () => {
 
       const adminClient = new AdminClient(client, packageId, adminCapId, unauthorizedSigner);
 
-      checkTxSuccedded(await adminClient.callFunction());
+      expectTxSucceeded(await adminClient.callFunction());
     });
   });
 
@@ -281,6 +276,7 @@ describe('SuiSandboxClient', () => {
   describe('Clock package', () => {
     it('publishes package successfully', () => {
       const { publishResult } = publishClockPackage();
+
       expect(publishResult.errors).toBeUndefined();
     });
 
@@ -305,7 +301,7 @@ describe('SuiSandboxClient', () => {
 
       sandbox.clockApi().advanceByMillis(1000);
 
-      checkTxSuccedded(await clockClient.update(clock));
+      expectTxSucceeded(await clockClient.update(clock));
 
       expect(await clockClient.readTimestamp(clock)).toBe(1000);
     });
@@ -321,16 +317,17 @@ describe('SuiSandboxClient', () => {
 
       sandbox.clockApi().advanceByMillis(1000);
 
-      checkTxSuccedded(await clockClient.update(clock));
+      expectTxSucceeded(await clockClient.update(clock));
       expect(await clockClient.readTimestamp(clock)).toBe(1000);
 
-      checkTxFailed(await clockClient.update(clock));
+      expectTxFailed(await clockClient.update(clock));
     });
   });
 
   describe('Dynamic package', () => {
     it('publishes package successfully', () => {
       const { publishResult } = publishDynamicPackage();
+
       expect(publishResult.errors).toBeUndefined();
     });
 
@@ -371,21 +368,21 @@ describe('SuiSandboxClient', () => {
 
       sandbox.clockApi().advanceByMillis(1000);
 
-      checkTxSuccedded(await clockClient.update(clock));
+      expectTxSucceeded(await clockClient.update(clock));
 
-      const object = await client.getObject({ id: clock });
-      expect(object.data).toBeDefined();
+      const object = await client.core.getObject({ objectId: clock });
+      expect(object.object).toBeDefined();
 
-      const pastObject = await client.tryGetPastObject({ id: clock, version: 3 });
+      const pastObject = sandbox.tryGetPastObject({ id: clock, version: 3 });
       expect(pastObject.status).toBe('VersionFound');
 
-      const notExistingVersion = await client.tryGetPastObject({ id: clock, version: 1 });
+      const notExistingVersion = sandbox.tryGetPastObject({ id: clock, version: 1 });
       expect(notExistingVersion.status).toBe('VersionNotFound');
 
-      const versionTooHigh = await client.tryGetPastObject({ id: clock, version: 11234 });
+      const versionTooHigh = sandbox.tryGetPastObject({ id: clock, version: 11234 });
       expect(versionTooHigh.status).toBe('VersionTooHigh');
 
-      const notExistingObject = await client.tryGetPastObject({
+      const notExistingObject = sandbox.tryGetPastObject({
         id: Secp256k1Keypair.generate().toSuiAddress(),
         version: 2136,
       });
@@ -401,41 +398,29 @@ describe('SuiSandboxClient', () => {
       sandbox.clockApi().advanceByMillis(1000);
       await clockClient.update(clock);
 
-      const changedIn = (
-        await client.queryTransactionBlocks({
-          filter: {
-            ChangedObject: clock,
-          },
-        })
-      ).data;
-      expect(changedIn.length).toBe(2); // create, update
+      const changedIn = sandbox.queryTransactionBlocks({
+        filter: { ChangedObject: clock },
+      }).data;
+      expect(changedIn.length).toBe(2);
 
-      const inputIn = (
-        await client.queryTransactionBlocks({
-          filter: {
-            InputObject: clock,
-          },
-        })
-      ).data;
-      expect(inputIn.length).toBe(1); // update
+      const inputIn = sandbox.queryTransactionBlocks({
+        filter: { InputObject: clock },
+      }).data;
+      expect(inputIn.length).toBe(1);
 
-      const affectedIn = (
-        await client.queryTransactionBlocks({
-          filter: {
-            AffectedObject: clock,
-          },
-        })
-      ).data;
-      expect(affectedIn.length).toBe(2); // create, update
+      const affectedIn = sandbox.queryTransactionBlocks({
+        filter: { AffectedObject: clock },
+      }).data;
+      expect(affectedIn.length).toBe(2);
 
-      const allTxs = (await client.queryTransactionBlocks({})).data;
-      expect(allTxs.length).toBe(3); // mint-sui, create, update
+      const allTxs = sandbox.queryTransactionBlocks({}).data;
+      expect(allTxs.length).toBe(3);
     });
   });
 });
 
 function setupTransferTest() {
-  const { client, sandbox } = createSandboxClient();
+  const { client, sandbox } = createSandboxGrpcClient();
   const sender = Secp256k1Keypair.generate();
   const recipient = Secp256k1Keypair.generate();
 
@@ -465,7 +450,7 @@ function createTransferTransaction(sender: Secp256k1Keypair, recipient: Secp256k
 }
 
 function publishTestPackage(packageDir: string) {
-  const { client, sandbox } = createSandboxClient();
+  const { client, sandbox } = createSandboxGrpcClient();
   const sender = Secp256k1Keypair.generate();
 
   sandbox.coinApi().mintSui(sender.toSuiAddress(), Number(20n * MIST_PER_SUI));
@@ -476,14 +461,14 @@ function publishTestPackage(packageDir: string) {
   return { client, sandbox, packageId, sender, publishResult };
 }
 
-function checkTxSuccedded(res: SuiTransactionBlockResponse) {
-  expect(res.errors).toBeUndefined();
+function expectTxSucceeded(res: SuiClientTypes.TransactionResult) {
+  expect(res.$kind).not.toBe('FailedTransaction');
 
-  return res;
+  return res.Transaction!;
 }
 
-function checkTxFailed(res: SuiTransactionBlockResponse) {
-  expect(res.errors).toBeDefined();
+function expectTxFailed(res: SuiClientTypes.TransactionResult) {
+  expect(res.$kind).toBe('FailedTransaction');
 
-  return res;
+  return res.FailedTransaction!;
 }
