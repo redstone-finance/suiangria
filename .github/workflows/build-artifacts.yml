@@ -199,7 +199,7 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
-          curl -sSfL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+          curl -vL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
           suiup install sui@testnet-1.56.1
           suiup default set sui@testnet-1.56.1
           sui client -y
@@ -261,7 +261,7 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
-          curl -sSfL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+          curl -vL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
           suiup install sui@testnet -y
           sui client -y
       - name: Set up QEMU
@@ -283,7 +283,7 @@ jobs:
               apt-get update && apt-get install -y curl git
             fi
 
-            curl -sSfL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+            curl -vL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
 
             export PATH="/root/.local/bin:$PATH"
 
