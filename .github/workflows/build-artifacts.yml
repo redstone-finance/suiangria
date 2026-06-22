@@ -199,6 +199,7 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
+          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           curl -vL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
           suiup install sui@testnet-1.56.1
           suiup default set sui@testnet-1.56.1
@@ -261,6 +262,7 @@ jobs:
         shell: bash
       - name: Install sui cli
         run: |
+          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           curl -vL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
           suiup install sui@testnet -y
           sui client -y
@@ -283,6 +285,7 @@ jobs:
               apt-get update && apt-get install -y curl git
             fi
 
+            export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             curl -vL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
 
             export PATH="/root/.local/bin:$PATH"
