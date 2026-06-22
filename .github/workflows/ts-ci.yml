@@ -50,9 +50,10 @@ jobs:
         run: yarn build:ts
 
       - name: Install sui cli
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          curl -vL -H'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+          curl -sSfL -H'Authorization: Bearer ${{ env.GITHUB_TOKEN }}' https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
           suiup install sui@testnet-1.56.1
           suiup default set sui@testnet-1.56.1
           sui client -y
