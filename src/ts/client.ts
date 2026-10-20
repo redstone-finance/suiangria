@@ -198,6 +198,14 @@ export class SandboxClient {
     this.coinApi().mintSui(address, amount);
   }
 
+  mintSuiToAddressBalance(address: string, amount: number) {
+    this.coinApi().mintSuiToAddressBalance(address, amount);
+  }
+
+  getAddressBalance(address: string, coinType?: string | null) {
+    return this.coinApi().getAddressBalance(address, coinType);
+  }
+
   publishPackage(modules: number[][], dependencies: string[], sender: string): SandboxTransactionResponse {
     return JSON.parse(this.packageApi().publish(modules, dependencies, sender));
   }

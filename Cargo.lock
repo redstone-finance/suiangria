@@ -7060,6 +7060,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "nonempty",
  "serde",
  "serde_json",
  "sui-execution",

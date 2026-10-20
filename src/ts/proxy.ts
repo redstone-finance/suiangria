@@ -274,6 +274,21 @@ export function createSandboxGrpcClient(): { client: SuiGrpcClient; sandbox: San
       };
     },
 
+    async getBalance({ owner, coinType }: { owner: string; coinType?: string }) {
+      const type = coinType ?? '0x2::sui::SUI';
+      const coinBalance = BigInt(sandbox.getBalance(owner, type));
+      const addressBalance = BigInt(sandbox.getAddressBalance(owner, type));
+
+      return {
+        balance: {
+          coinType: type,
+          balance: String(coinBalance + addressBalance),
+          coinBalance: String(coinBalance),
+          addressBalance: String(addressBalance),
+        },
+      };
+    },
+
     async getCurrentSystemState() {
       return {
         systemState: {

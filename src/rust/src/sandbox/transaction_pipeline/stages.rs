@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use nonempty::NonEmpty;
 use sui_json_rpc_types::{
     BalanceChange, ObjectChange, SuiTransactionBlockEvents, SuiTransactionBlockResponse,
 };
@@ -7,9 +8,11 @@ use sui_types::{
     accumulator_root::EmptyUnsettledObjectFunds,
     base_types::SystemObjectVersions,
     crypto::Signature,
-    effects::TransactionEffects,
+    digests::{ChainIdentifier, CheckpointDigest},
+    effects::{TransactionEffects, TransactionEffectsAPI},
     error::ExecutionError,
     execution_params::ExecutionOrEarlyError,
+    execution_status::ExecutionErrorKind,
     gas::SuiGasStatus,
     inner_temporary_store::InnerTemporaryStore,
     metrics::ExecutionMetrics,
@@ -21,7 +24,7 @@ use sui_types::{
 
 use crate::{
     sandbox::{
-        extensions::changes::Changes,
+        extensions::{address_balance::AddressBalanceExtension, changes::Changes},
         storage::StorageExtension,
         transaction_pipeline::{PipelineResult, TransactionStage},
         MoveVMSandbox,
@@ -189,6 +192,21 @@ impl TransactionStage for ExecutionStage {
         input: Self::Input,
         sandbox: &mut MoveVMSandbox,
     ) -> anyhow::Result<PipelineResult<Self::Output>> {
+        let withdrawals =
+            input
+                .tx_data
+                .process_funds_withdrawals_for_execution(ChainIdentifier::from(
+                    CheckpointDigest::default(),
+                ));
+        let execution_params = if sandbox.storage.has_sufficient_funds(&withdrawals) {
+            ExecutionOrEarlyError::ok(None)
+        } else {
+            ExecutionOrEarlyError::failed(
+                NonEmpty::new(ExecutionErrorKind::InsufficientFundsForWithdraw),
+                None,
+            )
+        };
+
         let (temporary_store, _, effects, _, execution_result) = sandbox
             .executor
             .execute_transaction_to_effects_and_execution_error(
@@ -196,11 +214,11 @@ impl TransactionStage for ExecutionStage {
                 &sandbox.config,
                 Arc::new(ExecutionMetrics::new(&Default::default())),
                 false,
-                ExecutionOrEarlyError::ok(None),
+                execution_params,
                 &sandbox.epoch,
                 sandbox.clock().get_time(),
                 input.checked_objects,
-                SystemObjectVersions::empty(),
+                SystemObjectVersions::new(sandbox.accumulator_version(), None),
                 &EmptyUnsettledObjectFunds,
                 input.tx_data.gas_data().clone(),
                 input.gas_status,
@@ -278,6 +296,9 @@ impl TransactionStage for StorageStage {
             &input.object_changes,
             &input.temporary_store,
         );
+        sandbox
+            .storage
+            .settle_accumulator_events(input.effects.accumulator_events());
 
         Ok(PipelineResult::Continue(TransactionOutput {
             tx_data: input.tx_data,

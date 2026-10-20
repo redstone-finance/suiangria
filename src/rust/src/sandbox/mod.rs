@@ -4,15 +4,15 @@ use std::sync::Arc;
 use sui_execution::Executor;
 
 use sui_types::{
-    base_types::ObjectID,
+    base_types::{ConsensusObjectVersion, ObjectID},
     committee::EpochId,
     digests::TransactionDigest,
     metrics::ExecutionMetrics,
-    object::{Object, ObjectRead},
+    object::{Object, ObjectRead, Owner},
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     supported_protocol_versions::ProtocolConfig,
     transaction::CheckedInputObjects,
-    SUI_FRAMEWORK_ADDRESS,
+    SUI_ACCUMULATOR_ROOT_OBJECT_ID, SUI_FRAMEWORK_ADDRESS,
 };
 
 mod builder;
@@ -22,6 +22,7 @@ mod storage;
 mod transaction_pipeline;
 
 pub use crate::sandbox::extensions::{
+    address_balance::AddressBalanceExtension,
     auth_extension::{AuthExtension, AuthMode},
     coins::CoinExtension,
     transaction_control::TransactionControlExtension,
@@ -62,6 +63,16 @@ impl MoveVMSandbox {
             vec![],
             vec![],
         )?;
+
+        if self.config.create_root_accumulator_object() {
+            builder.move_call(
+                SUI_FRAMEWORK_ADDRESS.into(),
+                ident_str!("accumulator").to_owned(),
+                ident_str!("create").to_owned(),
+                vec![],
+                vec![],
+            )?;
+        }
 
         let pt = builder.finish();
 
@@ -161,5 +172,20 @@ impl MoveVMSandbox {
 
     pub fn gas_price(&self) -> u64 {
         self.reference_price
+    }
+
+    pub fn accumulator_version(&self) -> Option<ConsensusObjectVersion> {
+        let root = self.storage.get_object(&SUI_ACCUMULATOR_ROOT_OBJECT_ID)?;
+        let Owner::Shared {
+            initial_shared_version,
+        } = root.owner()
+        else {
+            return None;
+        };
+
+        Some(ConsensusObjectVersion {
+            initial_shared_version: *initial_shared_version,
+            version: root.version(),
+        })
     }
 }
