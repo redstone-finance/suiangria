@@ -4,12 +4,15 @@ use sui_json_rpc_types::{
     BalanceChange, ObjectChange, SuiTransactionBlockEvents, SuiTransactionBlockResponse,
 };
 use sui_types::{
+    accumulator_root::EmptyUnsettledObjectFunds,
+    base_types::SystemObjectVersions,
     crypto::Signature,
     effects::TransactionEffects,
     error::ExecutionError,
+    execution_params::ExecutionOrEarlyError,
     gas::SuiGasStatus,
     inner_temporary_store::InnerTemporaryStore,
-    metrics::LimitsMetrics,
+    metrics::ExecutionMetrics,
     signature::GenericSignature,
     transaction::{
         CheckedInputObjects, SenderSignedData, Transaction, TransactionData, TransactionDataAPI,
@@ -186,19 +189,23 @@ impl TransactionStage for ExecutionStage {
         input: Self::Input,
         sandbox: &mut MoveVMSandbox,
     ) -> anyhow::Result<PipelineResult<Self::Output>> {
-        let (temporary_store, _, effects, _, execution_result) =
-            sandbox.executor.execute_transaction_to_effects(
+        let (temporary_store, _, effects, _, execution_result) = sandbox
+            .executor
+            .execute_transaction_to_effects_and_execution_error(
                 &sandbox.storage.as_inner(),
                 &sandbox.config,
-                Arc::new(LimitsMetrics::new(&Default::default())),
+                Arc::new(ExecutionMetrics::new(&Default::default())),
                 false,
-                Ok(()),
+                ExecutionOrEarlyError::ok(None),
                 &sandbox.epoch,
                 sandbox.clock().get_time(),
                 input.checked_objects,
+                SystemObjectVersions::empty(),
+                &EmptyUnsettledObjectFunds,
                 input.tx_data.gas_data().clone(),
                 input.gas_status,
                 input.tx_data.kind().clone(),
+                None,
                 input.tx_data.sender(),
                 input.tx_data.digest(),
                 &mut None,

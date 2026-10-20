@@ -7,7 +7,7 @@ use sui_types::{
     base_types::ObjectID,
     committee::EpochId,
     digests::TransactionDigest,
-    metrics::LimitsMetrics,
+    metrics::ExecutionMetrics,
     object::{Object, ObjectRead},
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     supported_protocol_versions::ProtocolConfig,
@@ -68,7 +68,7 @@ impl MoveVMSandbox {
         let storage = self.executor.update_genesis_state(
             self.storage.as_inner(),
             &self.config,
-            Arc::new(LimitsMetrics::new(&Default::default())),
+            Arc::new(ExecutionMetrics::new(&Default::default())),
             self.epoch,
             0,
             &TransactionDigest::genesis_marker(),
