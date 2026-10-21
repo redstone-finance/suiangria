@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use sui_types::{
     accumulator_event::AccumulatorEvent,
-    accumulator_root::{update_account_balance_for_testing, AccumulatorObjId, AccumulatorValue},
+    accumulator_root::{AccumulatorObjId, AccumulatorValue},
     balance::Balance,
     base_types::SuiAddress,
     effects::{AccumulatorOperation, AccumulatorValue as AccumulatorEventValue},
@@ -36,21 +36,16 @@ impl AddressBalanceExtension for StorageExtension {
             return;
         };
 
-        let object = match self.get_object(id.inner()) {
-            Some(existing) => {
-                let mut object = existing.clone();
-                update_account_balance_for_testing(&mut object, change);
-                let next_version = object.version().next();
-                object
-                    .data
-                    .try_as_move_mut()
-                    .unwrap()
-                    .increment_version_to(next_version);
-
-                object
-            }
-            None => AccumulatorValue::create_for_testing(owner, balance_type, change as u64),
-        };
+        let balance = (self.accumulator_value(&id) as i128 + change) as u64;
+        let mut object = AccumulatorValue::create_for_testing(owner, balance_type, balance);
+        if let Some(existing) = self.get_object(id.inner()) {
+            let next_version = existing.version().next();
+            object
+                .data
+                .try_as_move_mut()
+                .unwrap()
+                .increment_version_to(next_version);
+        }
 
         self.insert_object(object);
     }

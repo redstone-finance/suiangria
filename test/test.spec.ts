@@ -104,6 +104,16 @@ describe('SuiSandboxClient', () => {
       expect(sandbox.getBalance(address)).toBe(0);
     });
 
+    it('deposits more than the current address balance', () => {
+      const sandbox = new SandboxClient();
+      const address = Secp256k1Keypair.generate().toSuiAddress();
+
+      sandbox.mintSuiToAddressBalance(address, 1000);
+      sandbox.mintSuiToAddressBalance(address, 50000);
+
+      expect(sandbox.getAddressBalance(address)).toBe(51000);
+    });
+
     it('reports coin and address balance separately through the core client', async () => {
       const { client, sandbox } = createSandboxGrpcClient();
       const address = Secp256k1Keypair.generate().toSuiAddress();
