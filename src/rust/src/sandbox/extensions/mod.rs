@@ -1,3 +1,4 @@
+pub mod address_balance;
 pub mod auth_extension;
 pub mod changes;
 pub mod coins;

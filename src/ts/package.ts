@@ -16,7 +16,7 @@ export function publishPackage(sandbox: SandboxClient, movePackageSrcDir: string
 }
 
 function compileMovePackage(packageDir: string): BuildOutput {
-  const buildCommand = `sui move build --path ${packageDir} --dump-bytecode-as-base64 --skip-fetch-latest-git-deps`;
+  const buildCommand = `sui move build --path ${packageDir} --dump-bytecode-as-base64 --build-env testnet`;
 
   try {
     const output = execSync(buildCommand, {

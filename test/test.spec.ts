@@ -11,6 +11,10 @@ import { SuiClientTypes } from '@mysten/sui/client';
 const INITIAL_BALANCE = 1000000000000000n;
 const GAS_BUDGET = 1000000000000000n;
 const GAS_PRICE = 100;
+const ADDRESS_BALANCE = 10n * MIST_PER_SUI;
+const ADDRESS_GAS_BUDGET = MIST_PER_SUI / 100n;
+const WITHDRAWN_AMOUNT = MIST_PER_SUI;
+const SANDBOX_CHAIN_IDENTIFIER = '11111111111111111111111111111111';
 
 describe('SuiSandboxClient', () => {
   it('Estimate gas for tx', async () => {
@@ -85,6 +89,72 @@ describe('SuiSandboxClient', () => {
       expect(sandbox.getBalance(address)).toBe(0);
       sandbox.coinApi().mintSui(address, 10000);
       expect(sandbox.getBalance(address)).toBe(10000);
+    });
+  });
+
+  describe('address balance', () => {
+    it('mints SUI to the address balance without creating a coin', () => {
+      const sandbox = new SandboxClient();
+      const address = Secp256k1Keypair.generate().toSuiAddress();
+
+      sandbox.mintSuiToAddressBalance(address, 10000);
+      sandbox.mintSuiToAddressBalance(address, 5000);
+
+      expect(sandbox.getAddressBalance(address)).toBe(15000);
+      expect(sandbox.getBalance(address)).toBe(0);
+    });
+
+    it('reports coin and address balance separately through the core client', async () => {
+      const { client, sandbox } = createSandboxGrpcClient();
+      const address = Secp256k1Keypair.generate().toSuiAddress();
+      sandbox.mintSui(address, 1000);
+      sandbox.mintSuiToAddressBalance(address, 2000);
+
+      const { balance } = await client.core.getBalance({ owner: address });
+
+      expect(balance).toEqual({
+        coinType: '0x2::sui::SUI',
+        balance: '3000',
+        coinBalance: '1000',
+        addressBalance: '2000',
+      });
+    });
+
+    it('pays gas and withdraws funds from the address balance', async () => {
+      const { client, sandbox } = createSandboxGrpcClient();
+      const sender = Secp256k1Keypair.generate();
+      const recipient = Secp256k1Keypair.generate().toSuiAddress();
+      sandbox.mintSuiToAddressBalance(sender.toSuiAddress(), Number(ADDRESS_BALANCE));
+
+      const result = await client.signAndExecuteTransaction({
+        signer: sender,
+        transaction: createWithdrawalTransaction(recipient, WITHDRAWN_AMOUNT),
+        include: { effects: true },
+      });
+
+      const { effects } = expectTxSucceeded(result);
+      const { computationCost, storageCost, storageRebate } = effects!.gasUsed;
+      const gasCost = BigInt(computationCost) + BigInt(storageCost) - BigInt(storageRebate);
+      expect(sandbox.getBalance(recipient)).toBe(Number(WITHDRAWN_AMOUNT));
+      expect(sandbox.getAddressBalance(sender.toSuiAddress())).toBe(
+        Number(ADDRESS_BALANCE - WITHDRAWN_AMOUNT - gasCost),
+      );
+    });
+
+    it('rejects a withdrawal larger than the address balance', async () => {
+      const { client, sandbox } = createSandboxGrpcClient();
+      const sender = Secp256k1Keypair.generate();
+      const recipient = Secp256k1Keypair.generate().toSuiAddress();
+      sandbox.mintSuiToAddressBalance(sender.toSuiAddress(), Number(ADDRESS_GAS_BUDGET));
+
+      const result = await client.signAndExecuteTransaction({
+        signer: sender,
+        transaction: createWithdrawalTransaction(recipient, WITHDRAWN_AMOUNT),
+      });
+
+      expectTxFailed(result);
+      expect(sandbox.getBalance(recipient)).toBe(0);
+      expect(sandbox.getAddressBalance(sender.toSuiAddress())).toBe(Number(ADDRESS_GAS_BUDGET));
     });
   });
 
@@ -459,6 +529,30 @@ function publishTestPackage(packageDir: string) {
   const packageId = publishResult.objectChanges!.find((change) => change.type === 'published')!.packageId;
 
   return { client, sandbox, packageId, sender, publishResult };
+}
+
+function createWithdrawalTransaction(recipient: string, amount: bigint) {
+  const tx = new Transaction();
+  tx.setGasPayment([]);
+  tx.setGasBudget(ADDRESS_GAS_BUDGET);
+  tx.setExpiration({
+    ValidDuring: {
+      minEpoch: '0',
+      maxEpoch: '1',
+      minTimestamp: null,
+      maxTimestamp: null,
+      chain: SANDBOX_CHAIN_IDENTIFIER,
+      nonce: 1,
+    },
+  });
+  const [coin] = tx.moveCall({
+    target: '0x2::coin::redeem_funds',
+    typeArguments: ['0x2::sui::SUI'],
+    arguments: [tx.withdrawal({ amount })],
+  });
+  tx.transferObjects([coin], recipient);
+
+  return tx;
 }
 
 function expectTxSucceeded(res: SuiClientTypes.TransactionResult) {

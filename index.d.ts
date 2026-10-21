@@ -15,6 +15,8 @@ export declare class ClockApi {
 
 export declare class CoinApi {
   mintSui(address: string, amount: number): string;
+  mintSuiToAddressBalance(address: string, amount: number): void;
+  getAddressBalance(address: string, structType?: string | undefined | null): number;
   getBalance(address: string, structType?: string | undefined | null): number;
   getCoins(address: string, structType?: string | undefined | null): string;
 }
